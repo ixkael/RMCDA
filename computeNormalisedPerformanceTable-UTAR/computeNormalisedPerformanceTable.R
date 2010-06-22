@@ -1,8 +1,9 @@
 inputsLocation <- commandArgs()[5]
 outputsLocation <- commandArgs()[6]
 
-source("/Users/silver/RMCDA/Github/UTAR-lib.R")
+#source("/Users/silver/RMCDA/Github/UTAR-lib.R")
 library(RXMCDA)
+library(UTAR)
 
 errTag = FALSE
 if( errTag==FALSE )
