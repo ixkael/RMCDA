@@ -1910,7 +1910,7 @@ UTA.analytic.center <- function(x,flag,A,b,Aeq,beq,precision,delta,data,segs,I)
 	}else{
 		print("* PostUTA - Constraints are satisfied")
 		print("* Analytic center method launched")
-		out <- ac(A[,1:(S+N)],b,Aeq[,1:(S+N)],x[1:(S+N)],delta,precision,LOG)
+		out <- analyticccenter(A[,1:(S+N)],b,Aeq[,1:(S+N)],x[1:(S+N)],delta,precision,LOG)
 		xpostopt <- out$x
 		flag <- out$flag
 		if (flag > 0){
@@ -1942,7 +1942,7 @@ analyticccenter <- function(A,b,Aeq=NULL,x=NULL,delta,precision,LOG)
 		Z <- nullspace(Aeq)
 	}
 	
-	out <- acini(A,b,x,delta,precision)
+	out <- analyticcenterinitialization(A,b,x,delta,precision)
 	print("* Analytic center properly initialized")
 	x <- out[[1]]
 	flag <- out[[2]]

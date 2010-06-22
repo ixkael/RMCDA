@@ -1683,6 +1683,20 @@ utamp <- function(A,b,Aeq,beq,segs){
 
 analyticCenter <- function(x,A,b,Aeq)
 {
+	if(!is.vector(x)){
+		return (list("LOG"="x should be a vector","validation"=FALSE))
+		}
+	if(!is.matrix(A)){
+		return (list("LOG"="A should be a matrix","validation"=FALSE))
+		}
+	if(!is.vector(b)){
+		return (list("LOG"="b should be a vector","validation"=FALSE))
+		}
+	if(!is.matrix(Aeq)){
+		return (list("LOG"="Aeq should be a matrix","validation"=FALSE))
+		}
+		
+	err <- try({
 	fac <- 0.95
 	it <- 0
 	oldnorm <- 0
@@ -1697,8 +1711,18 @@ analyticCenter <- function(x,A,b,Aeq)
 	}else{
 		Z <- nullspace(Aeq)
 	}
+	})
+	if (inherits(err, 'try-error')){
+		return (list("LOG"="Problem while computing nullspace","validation"=FALSE))
+		}
 	
-	out <- analyticCenterInitialization(x,A,b)
+	err <- try({
+		out <- analyticCenterInitialization(x,A,b)
+	})
+	if (inherits(err, 'try-error')){
+		return (list("LOG"="Problem while initialising analytic center","validation"=FALSE))
+		}
+		
 	x <- out[[1]]
 	flag <- out[[2]]
 	oldnorm <- 0
