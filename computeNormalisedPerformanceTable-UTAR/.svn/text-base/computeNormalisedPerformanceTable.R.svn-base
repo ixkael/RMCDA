@@ -1,0 +1,380 @@
+exportLog <- function( LOG , outputsLocation , status="FAILED" ) 
+{
+	if( status == "FAILED" )
+	{
+		logMessage <- "Computation Failed"	
+		errorMessage <- LOG[  length(LOG) ] #[]?
+	} 
+	else 
+	{
+		logMessage <- "Normalized performanceTable successfully computed"
+		errorMessage <- "No error"
+	}	
+	z <- convertLogIntoTree( logMessage , errorMessage )
+	f <- tempfile()
+	saveXML(z, f, encoding = "UTF-8",indent=TRUE,file=paste(outputsLocation,"message.xml",sep="/"),prefix = '<?xml version="1.0"?>\n')
+}
+
+convertLogIntoTree <- function( logMessage="error" , errorMessage="error" ) 
+{
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	z$addNode("methodMessages",close=FALSE,attrs=c("mcdaConcept"="methodMessages"))
+	z$addNode("logMessage",close=FALSE)
+	z$addNode("text",logMessage)
+	z$closeTag()
+	z$addNode("errorMessage",close=FALSE)
+	z$addNode("text",errorMessage)
+	z$closeTag()
+	return(z)
+}
+
+savePerformanceTableUnderXML <- function( data )
+{
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	altNames <- rownames(data)
+	critNames <- colnames(data)
+	z$addNode("performanceTable",close=FALSE,attrs=c("mcdaConcept"="performanceTable"))
+	for( i in 1:length(altNames))
+	{
+		z$addNode( "alternativePerformances" , close=FALSE )
+		z$addNode( "alternativeID" , altNames[i] )
+		for( j in 1:length(critNames))
+		{
+			z$addNode( "performance" , close=FALSE )
+			z$addNode( "criterionID" , critNames[j] )
+			z$addNode( "value" , close=FALSE )
+			z$addNode( "real" , data[i,j] )
+			z$closeTag()
+			z$closeTag()
+		}
+		z$closeTag()
+	}
+	z$closeTag()
+	return( z )
+}
+
+get.XMCDAmatrices <- function (tree,  mcdaConcept = NULL) 
+{	
+	specification = ""
+	if (!is.null(mcdaConcept)) 
+		specification <- paste("[@mcdaConcept='", mcdaConcept, "']", sep = "")
+	criteria <- getNodeSet(tree, paste("//criteria", specification, sep = ""))
+	criteria <- getNodeSet(criteria[[1]],"criterion")
+	err1 <- NULL
+	gmatrix <- NULL
+	umatrix <- NULL
+	if(length(criteria)>0)
+	{
+		for( p in 1:length(criteria))
+		{
+			criterion <- getNodeSet(criteria[[p]],"criterionFunction")
+			if(length(criterion)>0)
+			{
+				for(i in 1:length(criterion))
+				{
+					gvec <- c()
+					uvec <- c()
+					points <- getNodeSet(criterion[[i]],"points")
+					point <- getNodeSet(points[[1]],"point")
+					if(length(point)>0)
+					{
+						for (k in 1:length(point))
+						{
+							tmpErr <- try({
+							g <- getNumericValue(getNodeSet(point[[k]],"abscissa"))[[1]]
+							u <- getNumericValue(getNodeSet(point[[k]],"ordinate"))[[1]]
+							})
+							if (inherits(tmpErr, "try-error")) 
+							{
+								err1 <- "At least one <point> contains no data."
+							}
+							gvec <- c(gvec,g)
+							uvec <- c(uvec,u)
+						}
+						uvec <- uvec[order(gvec)]
+						gvec <- gvec[order(gvec)]
+						if (is.null(gmatrix))
+						{
+							gmatrix <- matrix(gvec,ncol=length(gvec))
+						}
+						else
+						{
+							if(length(gvec) > ncol(gmatrix))
+							{
+								G <- matrix(NA,nrow=nrow(gmatrix),ncol=length(gvec))
+								G[which(!is.nan(gmatrix))] <- gmatrix
+								gmatrix <- rbind(G,gvec)
+							}
+							else
+							{
+								gmatrix <- rbind(gmatrix,c(gvec,rep(NA,ncol(gmatrix)-length(gvec))))
+							}
+						}
+						if (is.null(umatrix))
+						{
+							umatrix <- matrix(uvec,ncol=length(uvec))
+						}
+						else
+						{
+							if(length(uvec) > ncol(umatrix))
+							{
+								U <- matrix(NA,nrow=nrow(umatrix),ncol=length(uvec))
+								U[which(!is.nan(umatrix))] <- umatrix
+								umatrix <- rbind(U,uvec)
+							}
+							else
+							{
+								umatrix <- rbind(umatrix,c(uvec,rep(NA,ncol(umatrix)-length(uvec))))
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+				names(gmatrix) <- NULL	
+				names(umatrix) <- NULL	
+				return(list("gmatrix"=gmatrix,"umatrix"=umatrix))
+}
+								
+read.data.underXML <- function(file)
+{
+	data_xml <- xmlInternalTreeParse(file)
+	crit <- getCriteriaIDs(data_xml)[[1]]
+	matrices <- get.XMCDAmatrices(data_xml, mcdaConcept="criteria")
+	gmatrix <- matrices$gmatrix
+	umatrix <- matrices$umatrix
+	rownames(gmatrix) <- crit 
+	rownames(umatrix) <- crit 
+	status="OK"
+	return(list("status"=status,"gmatrix"=gmatrix,"umatrix"=umatrix))
+}
+
+computeNPT <- function( PT , gmatrix , umatrix )
+{	
+	NPT <- computeutilities( PT , gmatrix , umatrix )
+	return( NPT )
+}
+
+computeScoreFunction <- function ( NPT ) 
+{
+	utotal = rep(0,nrow(NPT))
+	for (i in 1:nrow(NPT)){
+		utotal[i] <- sum(NPT[i,])
+	}	
+	names(utotal) <- rownames(NPT)
+	return(utotal)
+}
+
+computeutilities <- function(data,gmatrix,umatrix)
+{
+	A <- nrow(data)
+	N <- ncol(data)
+	datautility = NULL
+	for (i in 1:A)
+	{
+		b <- rep( FALSE, length=N )
+		vec <- rep(0, length=N)
+		
+		for (j in 1:N)
+		{
+			g <- data[i,j]
+			if( g >= min(gmatrix[j,!is.na(gmatrix[j,])]) && g <= max(gmatrix[j,!is.na(gmatrix[j,])]) )
+			{
+				b[j] <- TRUE
+				ginfind <- max(which(gmatrix[j,!is.na(gmatrix[j,])]<=g))
+				gsupind <- min(which(gmatrix[j,!is.na(gmatrix[j,])]>=g))
+				if (gsupind == ginfind){
+					vec[j] <- umatrix[j,ginfind]
+				}else{
+					x <- c(gmatrix[j,ginfind],gmatrix[j,gsupind])
+					y <- c(umatrix[j,ginfind],umatrix[j,gsupind])
+					vec[j] <- approx(x,y,xout=g)$y
+				}
+			}
+		}
+		if( all(b) == TRUE )
+		{
+			if( is.null(datautility) )
+			{
+				datautility <- t(as.matrix(vec))
+			}
+			else
+			{
+				datautility <- rbind( datautility , vec )
+			}
+			rownames(datautility)[nrow(datautility)] <- rownames(data)[i]
+		}
+	}
+	colnames(datautility) <- colnames(data)
+	
+	print("----------------------------------------------")
+	print(gmatrix)
+	print("----------------------------------------------")
+	print(umatrix)
+	print("----------------------------------------------")
+	print(data)
+	print("----------------------------------------------")
+	print(datautility)
+	print("----------------------------------------------")
+	
+	return(datautility)
+}
+
+##########################################################################
+
+inputsLocation <- commandArgs()[5]
+outputsLocation <- commandArgs()[6]
+
+#source("/Users/silver/Desktop/Rstat/ACUTAR/OLD/XMCDA/libxmcda.R")
+#source("/Users/silver/Desktop/Rstat/libACUTAR.R")
+library(RXMCDA)
+
+#source("libACUTAR.R")
+
+
+listOfFiles <- list.files( inputsLocation )
+location <- listOfFiles[ listOfFiles == "alternatives.xml" ]
+if ( length( location ) == 0 ) 
+{
+	exportLog( list("failed to find alternatives.xml") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+location <- paste( inputsLocation , location , sep="/" )
+xml <- xmlInternalTreeParse( location )
+if( checkXSD( xml ) != 1 )
+{
+	exportLog( list("alternatives.xml is not a valid XMCDA file") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+alternativesIDs <- getAlternativesIDs ( xml )
+if ( alternativesIDs$status != "OK" )
+{
+	exportLog( list("failed to get data from alternatives.xml") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+alternativesIDs <- alternativesIDs[[1]]
+
+
+location <- listOfFiles[ listOfFiles == "criteria.xml" ]
+if( length( location ) == 0 ) 
+{
+	exportLog( list("failed to find criteria.xml") , outputsLocation )
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+location <- paste( inputsLocation , location , sep="/" )
+xml <- xmlInternalTreeParse( location )
+if( checkXSD( xml ) != 1 )
+{
+	exportLog( list("criteria.xml is not a valid XMCDA file") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )	
+}
+criteriaIDs <- getCriteriaIDs ( xml )
+if ( is.null( criteriaIDs$status != "OK" ) )
+{
+	exportLog( list("failed to get data from criteria.xml") , outputsLocation )
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+criteriaIDs <- criteriaIDs[[1]]
+
+
+listOfFiles <- list.files( inputsLocation )
+location <- listOfFiles[ listOfFiles == "performanceTable.xml" ]
+if( length( location ) == 0 ) 
+{
+	exportLog( list("failed to find performanceTable.xml") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+location <- paste( inputsLocation , location , sep="/" )
+xml <- xmlInternalTreeParse( location )
+if( checkXSD( xml ) != 1 )
+{
+	exportLog( list("performanceTable.xml is not a valid XMCDA file") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )	
+}
+PT <- getPerformanceTables( xml )[[1]]
+
+
+location <- listOfFiles[ listOfFiles == "valueFunctions.xml" ]
+if ( length( location ) == 0 ) 
+{
+	exportLog( list("failed to find valueFunctions.xml") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+location <- paste( inputsLocation , location , sep="/" )
+if( checkXSD( xmlInternalTreeParse( location ) ) != 1 )
+{
+	exportLog( list("valueFunctions.xml is not a valid XMCDA file") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+result <- read.data.underXML ( location )
+if ( result$status != "OK" )
+{
+	exportLog( list("failed to get data from valueFunctions.xml") , outputsLocation ) 
+	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	filename <- "normalizedPerformanceTable.xml"
+	whereF =  paste(outputsLocation,filename,sep="/")
+	saveXML( z , file=whereF )
+}
+gmatrix <- result$gmatrix
+umatrix <- result$umatrix
+
+
+performanceTable <- PT
+co <- colnames(performanceTable)
+ro <- rownames(performanceTable)
+temporaryAlternatives <- c()
+for (l in 1:length(alternativesIDs) )
+{
+	temp <- which( ro == alternativesIDs[l] )
+	temporaryAlternatives <- c( temporaryAlternatives , temp )
+}
+temporaryCriteria <- c()
+for (l in 1:length(criteriaIDs) )
+{
+	temp <- which( co == criteriaIDs[l] ) 
+	temporaryCriteria <- c( temporaryCriteria , temp )
+}
+PT <- performanceTable[ temporaryAlternatives , temporaryCriteria ]
+
+
+
+NPT <- computeNPT( PT , gmatrix , umatrix )
+
+filename <- "normalizedPerformanceTable.xml"
+whereF =  paste(outputsLocation,filename,sep="/")
+f <- tempfile()
+z <- savePerformanceTableUnderXML(NPT)
+
+exportLog( list("OK") , outputsLocation , status = "OK" )
+saveXML(z, f, encoding = "UTF-8",indent=TRUE, file=whereF,prefix = '<?xml version="1.0"?>\n')
