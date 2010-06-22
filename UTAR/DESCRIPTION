@@ -5,8 +5,8 @@ Title: UTAR
 Author: Boris Leistedt
 Maintainer: Boris Leistedt <boris.leistedt@gmail.com>
 Description: UTAR is a package for the R statistical software and specifically designed to provide functions for MCDA UTA models and the related webservices
-Depends: R(>= 2.1.0), RXMCDA, methods, XML,  MASS, lpSolve, linprog, LowRankQP
-Suggests: RXMCDA, XML
+Depends: R(>= 2.1.0), RXMCDA, methods  
+Suggests: RXMCDA, XML, MASS, lpSolve, linprog, LowRankQP
 Encoding: latin1
 License: CeCILL 2 (GNU GPL 2 compatible)
 Packaged: Mon 21 06 2010; Boris Leistedt

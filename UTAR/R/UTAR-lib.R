@@ -160,8 +160,13 @@ exportLog <- function( message , location , error=TRUE )
 	#}else{
 	#	status <- putErrorMessage(z, message , name = "Error")
 	#}
+	if( is.null(location) ){
+		outputLoc = "message.xml"
+	}else{
+		outputLoc = paste(location,"message.xml",sep="/")
+	}
 	
-	status <- saveXML(z, file=paste(location,"message.xml",sep="/")  )
+	status <- saveXML(z, file= outputLoc  )
 }
 
 # exportSituation creates an output file contoining the solution
