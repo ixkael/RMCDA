@@ -145,17 +145,17 @@ if(errTag == FALSE){
 if(errTag == FALSE){
 	tmpErr<-try(
 			{
-				#setwd(outputsLocation)
-				pdf("out/out.pdf", width=length(alternativesIDs) + 2 , height = length(alternativesIDs) + 2)
+				setwd(outputsLocation)
+				pdf("out.pdf", width=length(alternativesIDs) + 2 , height = length(alternativesIDs) + 2)
 				plot(v2~v1 , type="b", cex=2 , cex.axis=2.1 , xlim=c(min(v1)-mean(v1)/3 , max(v1)+mean(v1)/3 ) , ylim=c(min(v2)-mean(v2)/3 , max(v2)+mean(v2)/3 )) 
 				text( v1,v2,pos=3,offset=1.3,cex=2,labels = alternativesIDs[o] )
 				title(xlab="alternativesValues1", ylab="alternativesValues2" , cex.lab=1.5)
 				dev.off()
-				system("convert out/out.pdf out/out.png")
+				system("convert out.pdf out.png")
 			system("base64 -w0 out.png > out.base64")
-#				system("openssl enc -base64 -in out/out.png -out out/out.base64 ")
-				tmp <-readLines(file("out/out.base64","rt"))
-				system("rm out/out.base64 out/out.png out/out.pdf")
+#				system("openssl enc -base64 -in out.png -out out.base64 ")
+				tmp <-readLines(file("out.base64","rt"))
+				system("rm out.base64 out.png out.pdf")
 				closeAllConnections()
 			})
 	if (inherits(tmpErr, 'try-error')){
@@ -184,13 +184,13 @@ if(errTag == FALSE){
 				z$addNode( "image", tmp )
 				z$closeTag()
 				z$closeTag()
-				saveXML( z, file = paste(outputsLocation,"alternativesValuesPlotComparison.xml",sep="/") )
+				saveXML( z, file = "alternativesValuesPlotComparison.xml" )
 			})	
 	if (inherits(tmpErr, 'try-error')){
 		message <- "Fatal error while exporting data"
-		exportLog( message , outputsLocation , error=TRUE )
+		exportLog( message , NULL , error=TRUE )
 	} else {
 		message <- "Execution successful"
-		exportLog( message , outputsLocation , error=FALSE )
+		exportLog( message , NULL , error=FALSE )
 	}
 }
