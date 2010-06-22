@@ -1,0 +1,8 @@
+UTAR
+------
+
+UTAR is a package for the R statistical software and specifically designed to provide functions for MCDA UTA models and the related webservices.
+
+UTAR is released under the CeCILL license (v2),
+copyrighted and maintained by Boris Leistedt
+(boris.leistedt@gmail.com).

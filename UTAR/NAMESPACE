@@ -1,0 +1,37 @@
+## Namespace for RXMCDA
+
+## Generics and functions defined in this package
+export(
+	"getValueFunctions",
+       "exportLog",
+	"extractContent",
+       "exportSituation",
+       "performanceTableToXML",
+       "computeNormalisedPerformanceTable",
+       "scanInputsFolder",
+       "findAndCheck",
+       "extractContent",
+       "getPreferencesDirections",
+       "combineAndRestrictContent",
+       "restrictAllFilesToCorrectAlternatives",
+       "restrictAllFilesToCorrectCriteria",
+       "produceOrientedSegment",
+       "computeUTASTAR",
+       "computeUTASTARmatrices",
+       "countNbDiffAlternatives",
+       "contructGmatrix",
+       "solveUTASTAR",
+       "computePostOptimalityAnalysis",
+       "meanValue",
+       "utamp",
+       "analyticCenter",
+       "analyticCenterInitialization",
+       "pseudoinverse",
+       "nullspace",
+       "psmall.svd",
+       "fast.svd",
+       "positive.svd",
+       "buildUmatrix",
+       "saveUtilityFunctionUnderXML"
+       )
+
