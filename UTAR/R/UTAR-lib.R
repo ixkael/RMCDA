@@ -135,11 +135,12 @@ getValueFunctions <- function ( tree,  mcdaConcept = NULL )
 }
 
 # exportLog creates an output file containing a message concerning the execution
-exportLog <- function( message , location , error=TRUE ) 
+exportLog <- function( message , location , error=TRUE , specialName = NULL) 
 {
 	if(is.null(message)){
 		message = "no error"
 	}
+	
 	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 	z$addNode("methodMessages",close=FALSE)
 		if( error == FALSE ){
@@ -160,10 +161,15 @@ exportLog <- function( message , location , error=TRUE )
 	#}else{
 	#	status <- putErrorMessage(z, message , name = "Error")
 	#}
-	if( is.null(location) ){
-		outputLoc = "message.xml"
+	if(is.null(specialName)){
+		finalname = "message.xml"
 	}else{
-		outputLoc = paste(location,"message.xml",sep="/")
+		finalname = specialName
+	}
+	if( is.null(location) ){
+		outputLoc = finalname
+	}else{
+		outputLoc = paste(location,finalname,sep="/")
 	}
 	
 	status <- saveXML(z, file= outputLoc  )
