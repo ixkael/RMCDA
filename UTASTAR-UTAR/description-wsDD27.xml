@@ -1,0 +1,267 @@
+<program_description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/ws/_downloads/description.xsd">
+	
+	<program provider="UTAR" name="ACUTA" displayName="ACUTA" version="1.0" />
+	
+	<documentation>
+		<description>Computes UTASTAR method and if necessary uses post-optimality analysis among three well-known post-optimality methods</description>
+		<contact>Boris Leistedt (boris.leistedt@gmail.com)</contact>
+		<reference>UTA Methods, Y. Siskos</reference>
+	</documentation>
+	
+	<parameters>
+				
+		
+		
+		<input id="method" name="method" displayName="method" isoptional="1">
+			<documentation>
+				<description>
+					Post-optimality method
+				</description>
+			</documentation>
+			<xmcda tag="methodParameters">
+				<![CDATA[
+					<methodParameters>
+						<parameter>
+							<value>
+            					<label>%1</label>
+       						 </value>
+						</parameter>
+					</methodParameters>
+				]]>
+			</xmcda>		
+		</input>
+
+		
+		
+		<input id="alternatives" name="alternatives" displayName="alternatives" isoptional="0">
+			<documentation>
+				<description>
+					A list of alternatives. Alternatives can be activated or desactivated via the &lt;active&gt; tag (true or false). By default (no &lt;active&gt; tag), alternatives are considered as active. 
+				</description>
+			</documentation>
+			<xmcda tag="alternatives">
+				<![CDATA[
+					<alternatives>
+						<alternative>
+							<alternativeID> [...] </alternativeID>
+						</alternative>
+					</alternatives>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="altRank" name="alternativesRanking" displayName="alternativesRank" isoptional="1">
+			<documentation>
+				<description>
+					Subset of alternatives and the related ranking, in order to compute the method. The subset must be included in the global set of alternatives.
+				</description>
+			</documentation>
+			<xmcda tag="alternativesValues">
+				<![CDATA[
+					<alternativesValues>
+						<alternativeValue>
+							<alternativeID> [...] </alternativeID>
+							<value>
+            							<integer> [...] </integer>
+       						 	</value>
+						</alternativeValue>
+					</alternativesValues>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="alternativesPreferences"	name="alternativesPreferences"	displayName="alternativesPreferences" isoptional="1" >
+			<documentation>
+				<description>Partial order on a subset of alternatives, representing the strict preference, in order to compute the method. The subset must be included in the global set of alternatives.</description>
+			</documentation>
+			<xmcda tag="alternativesValues">
+				<![CDATA[
+				<alternativesComparisons>
+					<pairs>
+						<pair>
+							<initial>
+								<alternativeID>[...]</alternativeID>
+							</initial>
+							<terminal>
+								<alternativeID>[...]</alternativeID>
+							</terminal>
+						</pair>
+						[...]
+					</pairs>
+				</alternativesComparisons>
+				                			]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="alternativesIndifferences"	name="alternativesIndifferences"	displayName="alternativesIndifferences" isoptional="1" >
+			<documentation>
+				<description>Partial order on a subset of alternatives, representing the indifference, in order to compute the method. The subset must be included in the global set of alternatives.</description>
+			</documentation>
+			<xmcda tag="alternativesValues">
+				<![CDATA[
+				<alternativesComparisons>
+					<pairs>
+						<pair>
+							<initial>
+								<alternativeID>[...]</alternativeID>
+							</initial>
+							<terminal>
+								<alternativeID>[...]</alternativeID>
+							</terminal>
+						</pair>
+						[...]
+					</pairs>
+				</alternativesComparisons>
+				                			]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="crit" name="criteria" displayName="criteria" isoptional="0">
+			<documentation>
+				<description>
+					A list of criteria. Criteria can be activated or desactivated via the &lt;active&gt; tag (true or false). By default (no &lt;active&gt; tag), criteria are considered as active.
+				</description>
+			</documentation>
+			<xmcda tag="criteria">
+				<![CDATA[
+					<criteria>
+						<criterion>
+							<criterionID>[...] </criterionID>
+						</criterion>
+					</criteria>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="perfTable" name="performanceTable" displayName="performanceTable" isoptional="0">
+			<documentation>
+				<description>
+					Values of criteria for different alternatives. It must contains IDs of both criteria and alternatives described previously.
+				</description>
+			</documentation>
+			<xmcda tag="performanceTable">
+				<![CDATA[
+					<performanceTable>
+						<alternativePerformances>
+							<alternativeID> [...] </alternativeID>
+							<performance>
+								<criterionID> [...] </criterionID>
+								<value>
+            							<real> [...] </real>
+       						 	</value>
+							</performance>
+						</alternativePerformances>
+					</performanceTable>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="prefDir" name="preferencesDirections" displayName="preferenceDirections" isoptional="1">
+			<documentation>
+				<description>
+					Optional information about preference directions of some criteria. If not specified : the algorithm will take care of it.
+				</description>
+			</documentation>
+			<xmcda tag="criteriaValues">
+				<![CDATA[
+					<criteriaValues>
+						<criterionValue>
+							<criterionID> [...] </criterionID>
+							<value>
+            							<label> [..] </label>
+       						 	</value>
+						</criterionValue>
+					</criteriaValues>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<input id="critSeg" name="segments" displayName="criteriaSegments" isoptional="1">
+			<documentation>
+				<description>
+					Information about preference discretization of some criteria. If not specified : the algorithm will take care of it.
+				</description>
+			</documentation>
+			<xmcda tag="criteriaValues">
+				<![CDATA[
+					<criteriaValues>
+						<criterionValue>
+							<criterionID>[...] </criterionID>
+							<value>
+            							<integer> [...] </integer>
+       						 	</value>
+						</criterionValue>
+					</criteriaValues>
+				]]>
+			</xmcda>
+		</input>
+		
+		
+		
+		<output id="valueFunctions" name="valueFunctions" displayName="valueFunctions">
+			<documentation>
+				<description>
+					Main solution : value functions of the selected criteria, using UTA method.
+				</description>
+			</documentation>
+			<xmcda tag="criteria">
+				<![CDATA[
+					<criteria mcdaConcept="criteria">
+						<criterion>
+							<criterionID>[..]</criterionID>
+							<criterionFunction>
+								<points>
+									<point>
+										<abscissa><real>[...]</real></abscissa>
+										<ordinate><real>[...]</real></ordinate>
+									</point>
+								</points>
+							</criterionFunction>
+						</criterion>
+					</criteria>
+				]]>
+			</xmcda>
+		</output>
+		
+		
+				
+		<output id="logMessage" name="message" displayName="message">
+			<documentation>
+				<description>
+					logMessage
+				</description>
+			</documentation>
+			<xmcda tag="methodMessages">
+				<![CDATA[
+					<methodMessages mcdaConcept="methodMessage">
+						<logMessage>
+							<text> [...]</text>
+						</logMessage>
+						<errorMessage>
+							<text> [...]</text>
+						</errorMessage>
+					</methodMessages>
+				]]>
+			</xmcda>
+		</output>
+		
+		
+		
+	</parameters>
+	
+</program_description>
