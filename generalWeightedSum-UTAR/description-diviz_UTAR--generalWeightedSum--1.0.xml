@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+
+<!DOCTYPE program_description PUBLIC "-//Telecom Bretagne/DTD XML Praxis Program Description 3.0//EN" "http://perso.telecom-bretagne.eu/~bigaret/praxis/dtd/program_description.dtd">
+
+<program_description export_date="2009-12-09 12:45:16 +0100">
+  <program provider="UTAR" name="generalWeightedSum" version="1.0" />
+  <from desc_id="S8888" />
+  <description><![CDATA[Computes the weighted sum of alternatives' evaluations.]]></description>
+  <parameters>
+    <parameter id="weightedSum-cmdline" type="command" ismandatory="1">
+      <name>generalWeightedSum</name>
+      <description></description>
+      <position>100000</position>
+      <code>$callXMCDAService generalWeightedSum-UTAR -S </code>
+    </parameter>
+
+
+    <parameter id="alternatives" ishidden="0" type="input">
+      <name>alternatives</name>
+      <description><![CDATA[
+					A list of alternatives. Alternatives can be activated or desactivated via the <active> tag (true or false). By default (no <active> tag), alternatives are considered as active. 
+				]]></description>
+      <position>100003</position>
+      <code> alternatives:alternatives.xml</code>
+      <types>
+        <type>alternatives</type>
+      </types>
+      <vdef>alternatives.xml</vdef>
+      <dep/>
+    </parameter>
+
+
+
+    <parameter id="average_or_weightedSum" ishidden="0" type="enum">
+      <name>Aggregation operator</name>
+      <description></description>
+      <position>100002</position>
+      <vlist>
+        <item id="weightedSum">
+          <description>Weighted sum</description>
+          <code/>
+        </item>
+        <item id="average">
+          <description>Average</description>
+          <code/>
+        </item>
+        <item id="sum">
+          <description>Sum</description>
+          <code/>
+        </item>
+      </vlist>
+      <vdef>weightedSum</vdef>
+    </parameter>
+
+
+
+    <parameter id="avg-gui" ishidden="1" type="code">
+      <name>average operator</name>
+      <description><![CDATA[
+					Boolean for the average operator. (true if you want to evaluate the average value of an alternative, for all criteria).
+				]]></description>
+      <position>500</position>
+      <code><![CDATA[#avg: avg.xml
+cat > avg.xml <<EOF%n<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="xmcdaKappalab.xsl"?>
+<xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.0.0.xsd">
+					<methodParameters>
+						<parameter name="average">
+							<value>
+            					<label>true</label>
+       						 </value>
+						</parameter>
+					</methodParameters>
+</xmcda:XMCDA>%nEOF%n]]></code>
+      <dep>(average_or_weightedSum:type="average")</dep>
+
+    </parameter>
+
+    <parameter id="avg-cmdline" ishidden="1" type="code">
+      <name>average operator insertion in cmd-line</name>
+      <description></description>
+      <position>100005</position>
+      <code> avg:avg.xml</code>
+      <dep>(average_or_weightedSum:type="average")</dep>
+
+    </parameter>
+
+
+
+
+
+    <parameter id="criteria" ishidden="0" type="input">
+      <name>criteria</name>
+      <description><![CDATA[
+					A list of criteria. Criteria can be activated or desactivated via the <active> tag (true or false). By default (no <active> tag), criteria are considered as active.
+				]]></description>
+      <position>100006</position>
+      <code> criteria:criteria.xml</code>
+      <types>
+        <type>criteria</type>
+      </types>
+      <vdef>criteria.xml</vdef>
+      <dep/>
+    </parameter>
+
+
+
+    <parameter id="performanceTable" ishidden="0" type="input">
+      <name>performanceTable</name>
+      <description><![CDATA[
+					A performance table. The evaluations should be numeric values, i.e. <real>, <integer> or <rational>. It must contains IDs of both criteria and alternatives described previously.
+				]]></description>
+      <position>100007</position>
+      <code> performanceTable:performanceTable.xml</code>
+      <types>
+        <type>performanceTable</type>
+      </types>
+      <vdef>performanceTable.xml</vdef>
+      <dep/>
+    </parameter>
+
+
+
+    <parameter id="criteriaWeights" ishidden="0" type="input">
+      <name>weights</name>
+      <description><![CDATA[
+					Containing the optional weights for criteria sum.
+				]]></description>
+      <position>100008</position>
+      <code> weights:weights.xml</code>
+      <types>
+        <type>criteriaValues</type>
+      </types>
+      <vdef>weights.xml</vdef>
+      <dep>(average_or_weightedSum:type="weightedSum")</dep>
+
+    </parameter>
+
+    <parameter id="weightedSum-normalized" ishidden="0" type="boolean">
+      <name>Normalize weights? </name>
+      <description>Normalize weights? </description>
+      <position>400</position>
+      <code><![CDATA[#norm: norm.xml
+cat > norm.xml <<EOF%n<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="xmcdaKappalab.xsl"?>
+<xmcda:XMCDA xmlns:xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.0.0.xsd">
+    <methodParameters>
+    	<parameter name="normalisedWeights">
+    		<value>
+    			<label>%s</label>
+    		</value>
+    	</parameter>
+    </methodParameters>
+</xmcda:XMCDA>%nEOF%n]]></code>
+      <vdef></vdef>
+      <dep>(average_or_weightedSum:type="weightedSum")</dep>
+    </parameter>
+
+    <parameter id="norm-cmdline" ishidden="1" type="code">
+      <name>normalised weights insertion in cmd-line</name>
+      <description></description>
+      <position>100004</position>
+      <code> norm:norm.xml</code>
+      <dep>(average_or_weightedSum:type="weightedSum")</dep>
+
+    </parameter>
+
+
+    <parameter id="alternativesValues" ishidden="0" type="output">
+      <name>alternativesValues</name>
+      <description><![CDATA[
+					Values (or utility) for different alternatives
+				]]></description>
+      <position>2009</position>
+      <code/>
+      <types>
+        <type>alternativesValues</type>
+      </types>
+      <vdef>alternativesValues.xml</vdef>
+    </parameter>
+
+
+    <parameter id="messages" ishidden="0" type="output">
+      <name>messages</name>
+      <description><![CDATA[
+					logMessage
+				]]></description>
+      <position>2010</position>
+      <code/>
+      <types>
+        <type>methodMessages</type>
+      </types>
+      <vdef>messages.xml</vdef>
+    </parameter>
+
+
+
+    <parameter id="TIMEOUT" ishidden="0" type="int">
+      <name>Timeout? (0 for no timeout)</name>
+      <description>timeout</description>
+      <position>100001</position>
+      <code>-t %s </code>
+      <constraint>
+        <description>value should be a positive or null integer</description>
+        <code>(%d &gt;= 0)</code>
+      </constraint>
+      <vdef>60</vdef>
+    </parameter>
+    
+    <parameter id="VERBOSE" ishidden="0" type="enum">
+      <name>Verbose mode</name>
+      <description></description>
+      <position>100002</position>
+      <vlist>
+        <item id="T1">
+          <description>None</description>
+          <code></code>
+        </item>
+        <item id="T2">
+          <description>Moderately verbose</description>
+          <code> -v</code>
+        </item>
+        <item id="T3">
+          <description>Very verbose</description>
+          <code> -vv</code>
+        </item>
+        <item id="T4">
+          <description>Extremely verbose (include SOAP msgs)</description>
+          <code> -vvv</code>
+        </item>
+      </vlist>
+      <vdef>T2</vdef>
+    </parameter>
+
+  </parameters>
+</program_description>
+
