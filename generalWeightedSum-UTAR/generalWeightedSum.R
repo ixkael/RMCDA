@@ -254,6 +254,6 @@ if(errTag == FALSE){
 		exportLog( message , outputsLocation , error=TRUE )
 	} else {
 		message <- "Execution successful"
-		exportLog( message , outputsLocation , error=FALSE )
+		exportLog( message , outputsLocation  , error=FALSE , specialName = "messages.xml" )
 	}
 }
