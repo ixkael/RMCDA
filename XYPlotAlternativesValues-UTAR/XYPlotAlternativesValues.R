@@ -143,7 +143,6 @@ if(errTag == FALSE){
 }
 
 if(errTag == FALSE){
-	suppressionOK = FALSE
 	tmpErr<-try(
 			{
 				setwd(outputsLocation)
@@ -153,19 +152,19 @@ if(errTag == FALSE){
 				title(xlab="alternativesValues1", ylab="alternativesValues2" , cex.lab=1.5)
 				dev.off()
 				system("convert out.pdf out.png")
-			system("base64 -w0 out.png > out.base64")
+				system("base64 -w0 out.png > out.base64")
 #				system("openssl enc -base64 -in out.png -out out.base64 ")
 				tmp <-readLines(file("out.base64","rt"))
 				system("rm out.base64 out.png out.pdf")
-				suppressionOK = TRUE
 				closeAllConnections()
 			})
 	if (inherits(tmpErr, 'try-error')){
 		if(errTag==FALSE){exportLog( "error while creating image output" , outputsLocation )}
 		errTag = TRUE
-		if(suppressionOK == FALSE){
-			system("rm out.base64 out.png out.pdf")
-		}
+		# pour effacer les pdf, png, et Co qui traineraient après un plantage du try précédent
+		file.remove("out.png")
+		file.remove("out.pdf")
+		file.remove("out.base64")
 	}
 }
 
