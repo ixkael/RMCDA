@@ -144,9 +144,13 @@ exportLog <- function( message , location , error=TRUE , specialName = NULL)
 	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 	z$addNode("methodMessages",close=FALSE)
 		if( error == FALSE ){
-			z$addNode("logMessage",message)
+			z$addNode("logMessage",close=FALSE)
+			z$addNode("text",message)
+			z$closeTag()
 		}else{
-			z$addNode("errorMessage",message)
+			z$addNode("errorMessage",close=FALSE)
+			z$addNode("text",message)
+			z$closeTag()
 		}
 	z$closeTag()
 		
