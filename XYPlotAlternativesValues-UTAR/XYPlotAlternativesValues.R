@@ -143,6 +143,7 @@ if(errTag == FALSE){
 }
 
 if(errTag == FALSE){
+	suppressionOK = FALSE
 	tmpErr<-try(
 			{
 				setwd(outputsLocation)
@@ -156,11 +157,15 @@ if(errTag == FALSE){
 #				system("openssl enc -base64 -in out.png -out out.base64 ")
 				tmp <-readLines(file("out.base64","rt"))
 				system("rm out.base64 out.png out.pdf")
+				suppressionOK = TRUE
 				closeAllConnections()
 			})
 	if (inherits(tmpErr, 'try-error')){
 		if(errTag==FALSE){exportLog( "error while creating image output" , outputsLocation )}
 		errTag = TRUE
+		if(suppressionOK == FALSE){
+			system("rm out.base64 out.png out.pdf")
+		}
 	}
 }
 
