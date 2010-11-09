@@ -1084,7 +1084,7 @@ computeAcuta <- function( dataContent )
 	
 	delta <- dataContent$delta
 	if ( is.null(delta) )
-		delta <- 1e-9
+		delta <- 1e-3
 	level <- dataContent$level
 	
 	performanceTable <- dataContent$performanceTable
@@ -1742,7 +1742,7 @@ ACUTA <- function( alternativesIDs , performanceTable , delta , segs , prefset ,
 #######
 	
 	err <- try({
-			   UTA.solution <- UTA.resolution(A,b,Aeq,beq,c,precision)
+			   UTA.solution <- UTA.resolution(A,b,Aeq,beq,c,N,precision)
 			   })
 	if (inherits(err, 'try-error'))
 	{ return( list( "validation" = FALSE , "LOG" = "UTA RESOLUTION FATAL ERROR" ) ) }
@@ -1849,7 +1849,7 @@ ACUTA <- function( alternativesIDs , performanceTable , delta , segs , prefset ,
 
 #########################################################################
 
-UTA.resolution <- function(A,b,Aeq,beq,c,LOG,precision)
+UTA.resolution <- function(A,b,Aeq,beq,c,nC,precision)
 {
 	
 #uy=c(rep(">=",length(b)),rep("==",length(beq)))
@@ -1865,8 +1865,12 @@ UTA.resolution <- function(A,b,Aeq,beq,c,LOG,precision)
 	nV <- diag(rep(-1,nrow(A)))
 	nA <- cbind(A,nV)
 	Amat <- rbind(nAeq,nA)
+	lll = rep(1, nrow(Aeq)-nC-1 )
+	Amat = cbind(Amat,rep(0,nrow(Amat)))
+	Amat[1:length(lll),ncol(Amat)] = lll
+	
 	Vmat <- matrix(0,nrow=ncol(Amat),ncol=ncol(Amat))
-	dvec <- as.vector(c(c,rep(0,length(b))))
+	dvec <- as.vector(c(c,1,rep(0,length(b))))
 	bvec <- c(beq,b)
 	uvec <- rep(1,ncol(Amat))
 	err <- try({
