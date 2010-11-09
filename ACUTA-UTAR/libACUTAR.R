@@ -1865,9 +1865,14 @@ UTA.resolution <- function(A,b,Aeq,beq,c,nC,precision)
 	nV <- diag(rep(-1,nrow(A)))
 	nA <- cbind(A,nV)
 	Amat <- rbind(nAeq,nA)
-	lll = rep(1, nrow(Aeq)-nC-1 )
-	Amat = cbind(Amat,rep(0,nrow(Amat)))
-	Amat[1:length(lll),ncol(Amat)] = lll
+	if( nrow(Aeq)-nC > 1 ){
+		lll = rep(1, nrow(Aeq)-nC-1 )
+		Amat = cbind(Amat,rep(0,nrow(Amat)))
+		Amat[1:length(lll),ncol(Amat)] = lll
+		dvec <- as.vector(c(c,1,rep(0,length(b))))
+	}else{
+		dvec <- as.vector(c(c,rep(0,length(b))))
+		}
 	
 	Vmat <- matrix(0,nrow=ncol(Amat),ncol=ncol(Amat))
 	dvec <- as.vector(c(c,1,rep(0,length(b))))

@@ -1,17 +1,8 @@
 \name{analyticCenter}
-
 \alias{analyticCenter}
-
-\title{Computes analyticCenter of a set of constraints.}
-
-\description{
-	
-}
-
+\title{Computation analytic center}
+\description{}
 \usage{}
-
 \arguments{}
-
 \value{}
-
 \examples{}

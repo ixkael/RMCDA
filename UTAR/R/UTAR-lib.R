@@ -1044,7 +1044,8 @@ computeUTASTAR <- function( content )
 								result$A ,
 								result$Aeq ,
 								result$b ,
-								result$beq 
+								result$beq ,
+								length(content$orientedSegment)
 						)
 			})
 	if (inherits(err, "try-error") ){
@@ -1069,7 +1070,7 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 					ranking <- NULL
 				}
 				if( is.null(delta) ){
-					delta <- 0.000001
+					delta <- 0.00001
 				}
 				# toutes les paires de preferences
 				if( !is.null(prefPairs) ){
@@ -1159,8 +1160,7 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 						aindex <- which(rownames(performanceTable) == totalPrefPairs[i,1])
 						bindex <- which(rownames(performanceTable) == totalPrefPairs[i,2])
 						
-						for( j in 1:Ncrit ){
-							
+						for( j in 1:Ncrit ){		
 							crit <- names(prefDirections)[j]
 							
 							
@@ -1199,27 +1199,28 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 								A[i,x+gbinfind] <- A[i,x+gbinfind] - (gbsup-gb)/(gbsup-gbinf)
 								A[i,x+gbsupind] <- A[i,x+gbsupind] - (gb-gbinf)/(gbsup-gbinf)
 							}
+					  	}
+					
+					
+					
+						x <- aindex-1+S+Ncrit
+						A[i,x] <- -1
+						A[i,x+Nalt] <- 1
+					
+						x <- aindex+S+Ncrit
+						A[i,x] <- 1
+						A[i,x+Nalt] <- -1
+					
+						if( is.na(totalPrefPairs[i,3]) )
+						{
+							b[i] = as.numeric( delta )
 						}
+						else
+						{
+							b[i] = as.numeric( totalPrefPairs[i,3] )
+						}
+					
 					}
-					
-					
-					x <- aindex-1+S+Ncrit
-					A[i,x] <- -1
-					A[i,x+Nalt] <- 1
-					
-					x <- aindex+S+Ncrit
-					A[i,x] <- 1
-					A[i,x+Nalt] <- -1
-					
-					if( is.na(totalPrefPairs[i,3]) )
-					{
-						b[i] = as.numeric( delta )
-					}
-					else
-					{
-						b[i] = as.numeric( totalPrefPairs[i,3] )
-					}
-					
 					
 					for ( i in 1:Ncrit ){
 						if (i==1){
@@ -1335,7 +1336,6 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 				beq[Nip+Ncrit+1]=1
 				
 				
-				
 				b <- as.vector(b)
 				beq <- as.vector(beq)
 				
@@ -1395,7 +1395,7 @@ contructGmatrix <- function( prefDirections , performanceTable , segmentation ){
 						g <- seq(from=gmin,by=((gmax-gmin)/abs(as.numeric(seg))), to=gmax)
 						prefDirections[which(names(prefDirections)==colnames(performanceTable)[i])] <- sign(as.numeric(seg))*length(g)
 						Glist[[ colnames(performanceTable)[i] ]] <- g
-					}
+				 }
 				}else{
 					for( i in 1:ncol(performanceTable) ){
 						g <- c()
@@ -1436,7 +1436,7 @@ contructGmatrix <- function( prefDirections , performanceTable , segmentation ){
 }
 
 # solveUTASTARlp solves the lp problem for the UTASTAR disaggregation model
-solveUTASTAR <- function( c , A , Aeq , b , beq )
+solveUTASTAR <- function( c , A , Aeq , b , beq , nC )
 {
 	# Linear Programming
 	# err <- try({
@@ -1453,8 +1453,15 @@ solveUTASTAR <- function( c , A , Aeq , b , beq )
 	nV <- diag(rep(-1,nrow(A)))
 	nA <- cbind(A,nV)
 	Amat <- rbind(nAeq,nA)
+	if( nrow(Aeq)-nC > 1 ){
+		lll = rep(1, nrow(Aeq)-nC-1 )
+		Amat = cbind(Amat,rep(0,nrow(Amat)))
+		Amat[1:length(lll),ncol(Amat)] = lll
+		dvec <- as.vector(c(c,1,rep(0,length(b))))
+	}else{
+		dvec <- as.vector(c(c,rep(0,length(b))))
+		}
 	Vmat <- matrix(0,nrow=ncol(Amat),ncol=ncol(Amat))
-	dvec <- as.vector(c(c,rep(0,length(b))))
 	bvec <- c(beq,b)
 	uvec <- rep(1,ncol(Amat))
 	err <- try({
