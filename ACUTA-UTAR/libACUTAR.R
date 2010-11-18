@@ -1875,7 +1875,6 @@ UTA.resolution <- function(A,b,Aeq,beq,c,nC,precision)
 		}
 	
 	Vmat <- matrix(0,nrow=ncol(Amat),ncol=ncol(Amat))
-	dvec <- as.vector(c(c,1,rep(0,length(b))))
 	bvec <- c(beq,b)
 	uvec <- rep(1,ncol(Amat))
 	err <- try({
