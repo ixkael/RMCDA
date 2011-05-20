@@ -1742,7 +1742,7 @@ ACUTA <- function( alternativesIDs , performanceTable , delta , segs , prefset ,
 #######
 	
 	err <- try({
-			   UTA.solution <- UTA.resolution(A,b,Aeq,beq,c,N,precision)
+			   UTA.solution <- solveUTASTAR(c,A,Aeq,b,beq,N)
 			   })
 	if (inherits(err, 'try-error'))
 	{ return( list( "validation" = FALSE , "LOG" = "UTA RESOLUTION FATAL ERROR" ) ) }
@@ -1776,7 +1776,7 @@ ACUTA <- function( alternativesIDs , performanceTable , delta , segs , prefset ,
 	
 	
 	err <- try({
-			   AC.solution <- UTA.analytic.center(UTA.x,flag,A,b,Aeq,beq,precision,delta,data,segs,I)
+			   AC.solution <- analyticCenter(UTA.x,-A,b,Aeq)
 			   })
 	if (inherits(err, 'try-error'))
 	{ return( list( "validation" = FALSE , "LOG" = "Analytic center FATAL ERROR" ) ) }
@@ -1907,18 +1907,12 @@ UTA.analytic.center <- function(x,flag,A,b,Aeq,beq,precision,delta,data,segs,I)
 	if ((max(x[(S+N+1):length(x)]) > 10^(precision-1))){  
 	print("One or more constraints are not satisfied")
 	LOG <- "One or more constraints are not satisfied ; UTA partial success"
-#sigmasoutput <- preparesigmas(x[(S+N+1):length(x)], index, nA)
-#displayerrorvariables(sigmasoutput, alternativesIDs)
-#u=x[1:(S+N)]
-#matrixes <- buildmatrices(data,u,segs)
-#gmatrix <- matrixes[[1]]
-#umatrix <- matrixes[[2]]
-#datautility <- computeutilities(data,gmatrix,umatrix)
-#utotal <- sum(datautility[,2])
+
 	}else{
 		print("* PostUTA - Constraints are satisfied")
 		print("* Analytic center method launched")
-		out <- analyticccenter(A[,1:(S+N)],b,Aeq[,1:(S+N)],x[1:(S+N)],delta,precision,LOG)
+		out <- analyticccenter(A[,1:(S+N)],b,Aeq[,1:(S+N)],x[1:(S+N)],delta,precision)
+		print(out$x)
 		xpostopt <- out$x
 		flag <- out$flag
 		if (flag > 0){
@@ -1926,13 +1920,15 @@ UTA.analytic.center <- function(x,flag,A,b,Aeq,beq,precision,delta,data,segs,I)
 			status <- TRUE
 			LOG <- "Analytic center method succeed"
 			print("* Analytic center method succeed")
-		}
+		}else{
+			LOG <- "Analytic center problem : UTASTAR solution is provided"
+			}
 	}
 	x <- round(x,digits = 6)
 	return(list("x"=x,"flag"=flag,"status"=status,"validation"=TRUE,"LOG"=LOG))
 }
 
-analyticccenter <- function(A,b,Aeq=NULL,x=NULL,delta,precision,LOG)
+analyticccenter <- function(A,b,Aeq=NULL,x=NULL,delta,precision)
 {
 	print("* COMPUTATION OF ANALYTIC CENTER---")
 	fac <- 0.95
@@ -2272,39 +2268,35 @@ exportSolutions  <- function( solutions , outputsLocation )
 
 saveDataUnderXML <- function( sol )
 {
-#<xmcda:XMCDA xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 file:../XMCDA-2.0.0.xsd"
-	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
-#z$setNamespace("r")
+
+	z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 
 	criteriaNames <- sol$criteriaNames
 	criteriaIDs <- sol$criteriaIDs
-	z$addNode("criteria",close=FALSE,attrs=c("mcdaConcept"="criteria"))
-	if (TRUE){
+	criteria = newXMLNode("criteria",attrs=c("mcdaConcept"="criteria","name"=sol$filename))
+		
 		gmatrix  <- sol$gmatrix
 		umatrix  <- sol$umatrix
+		
 		for (i in 1:nrow(gmatrix)){
-			z$addNode("criterion",close=FALSE,attrs=c("id"=criteriaIDs[i]))
-			z$addNode("criterionFunction",close=FALSE)
-			z$addNode("points",close=FALSE)
+			
+			criterion  = newXMLNode("criterion",attrs=c("id"=criteriaIDs[i]), parent=criteria)
+			criterionFunction = newXMLNode("criterionFunction",parent=criterion)
+			points = newXMLNode("points", parent=criterionFunction)
+			
 			for (j in 1:length(gmatrix[i,])){
 				if(!is.na(gmatrix[i,j])){
-					z$addNode("point",close=FALSE)
-					z$addNode("abscissa",close=FALSE)
-					z$addNode("real",gmatrix[i,j])
-					z$closeTag()
-					z$addNode("ordinate",close=FALSE)
-					z$addNode("real",umatrix[i,j])
-					z$closeTag()
-					z$closeTag()
+					point = newXMLNode("point", parent=points)
+					abscissa = newXMLNode("abscissa", parent=point)
+					real = newXMLNode("real",gmatrix[i,j], parent=abscissa)
+					ordinate = newXMLNode("ordinate", parent=point)
+					real = newXMLNode("real",umatrix[i,j], parent=ordinate)
 				}
 			}
-			z$closeTag()
-			z$closeTag()
-			z$closeTag()
 		}
-	}
-	z$closeTag()
-#cat(saveXML(z))
+	
+	addChildren(z, criteria)
+	
 	return(z)
 }
 
@@ -2312,43 +2304,46 @@ saveDataUnderXML <- function( sol )
 
 save.otherPossibilities.underXML <- function(ACUTASOLS)
 {
+	
+	z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	
 	if( is.null(ACUTASOLS) )
 	{
-		z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 		return(z)
 	}
-	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+
 	for (i in 1:length(ACUTASOLS)){
+		
 		sol <- ACUTASOLS[[i]]
 		criteriaNames <- sol$criteriaNames
 		criteriaIDs <- sol$criteriaIDs
-		z$addNode("criteria",close=FALSE,attrs=c("mcdaConcept"="criteria","name"=sol$filename))
+		
+		criteria = newXMLNode("criteria",attrs=c("mcdaConcept"="criteria","name"=sol$filename))
 		
 		gmatrix  <- sol$gmatrix
 		umatrix  <- sol$umatrix
+		
 		for (i in 1:nrow(gmatrix)){
-			z$addNode("criterion",close=FALSE,attrs=c("id"=criteriaIDs[i]))
-			z$addNode("criterionFunction",close=FALSE)
-			z$addNode("points",close=FALSE)
+			
+			criterion  = newXMLNode("criterion",attrs=c("id"=criteriaIDs[i]), parent=criteria)
+			criterionFunction = newXMLNode("criterionFunction",parent=criterion)
+			points = newXMLNode("points", parent=criterionFunction)
+			
 			for (j in 1:length(gmatrix[i,])){
 				if(!is.na(gmatrix[i,j])){
-					z$addNode("point",close=FALSE)
-					z$addNode("abscissa",close=FALSE)
-					z$addNode("real",gmatrix[i,j])
-					z$closeTag()
-					z$addNode("ordinate",close=FALSE)
-					z$addNode("real",umatrix[i,j])
-					z$closeTag()
-					z$closeTag()
+					point = newXMLNode("point", parent=points)
+					abscissa = newXMLNode("abscissa", parent=point)
+					real = newXMLNode("real",gmatrix[i,j], parent=abscissa)
+					ordinate = newXMLNode("ordinate", parent=point)
+					real = newXMLNode("real",umatrix[i,j], parent=ordinate)
 				}
 			}
-			z$closeTag()
-			z$closeTag()
-			z$closeTag()
 		}
-		
-		z$closeTag()
 	}
+	
+	addChildren(z, criteria)
+	
+	
 #cat(saveXML(z))
 	return(z)
 }
@@ -2369,17 +2364,23 @@ exportLOG <- function(LOG,where,status)
 	   }
 	
 	
-	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
-	z$addNode("methodMessages",close=FALSE,attrs=c("mcdaConcept"="methodMessages"))
-	z$addNode("logMessage",close=FALSE)
-	z$addNode("text",logMessage)
-	z$closeTag()
+	#z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	#z$addNode("methodMessages",close=FALSE,attrs=c("mcdaConcept"="methodMessages"))
+	#z$addNode("logMessage",close=FALSE)
+	#z$addNode("text",logMessage)
+	#z$closeTag()
+	#z$closeTag()
 	
-	z$closeTag()
+	text = newXMLNode( "text", logMessage )
+	logMessage = newXMLNode( "logMessage" )
+	methodMessages = newXMLNode( "methodMessages", attrs = c("mcdaConcept"="methodMessages") )
+	z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 	
-	f <- tempfile()
-#saveXML(z, f, encoding = "UTF-8",indent=TRUE, file=paste(where,"message.xml",sep="/"),prefix = '<?xml version="1.0"?>\n')
- 	saveXML( z , file=paste(where,"message.xml",sep="/") )
+	addChildren(logMessage, text)
+	addChildren(methodMessages, logMessage)
+	addChildren(z, methodMessages)	
+	
+	saveXML( z , file=paste(where,"message.xml",sep="/") )
 }
 
 #########################################################################

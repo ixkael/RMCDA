@@ -4,7 +4,7 @@
 	<program provider="UTAR" name="ACUTA" displayName="ACUTA" version="1.0" />
 	
 	<documentation>
-		<description>Computes ACUTA method - analytic center for UTA - that provides a good solution for indeterminate problems in an additive model </description>
+		<description>Computes ACUTA method - analytic center for UTA - which provides a set of additive value functions that have a central position in the polyhedron of admissible value functions, given some preference information (preference relation).</description>
 		<contact>Boris Leistedt (boris.leistedt@gmail.com)</contact>
 	</documentation>
 	
@@ -13,7 +13,7 @@
 		<input id="delta" name="delta" displayName="delta" isoptional="1">
 			<documentation>
 				<description>
-					Optional delta value for UTA - delta is the gap between two successive alternatives values within the disaggregation model
+					Optional delta value for UTA - delta is the utility gap between two successive alternatives in the preference ranking.
 				</description>
 			</documentation>
 			<xmcda tag="methodParameters">
@@ -44,40 +44,6 @@
 			</gui>
 		</input>
 		
-		<input id="level" name="level" displayName="level" isoptional="1">
-			<documentation>
-				<description>
-					Optional level value for ACUTA algorithm - if the method finds multiple solutions, the level parameter provides a way to select
-				</description>
-			</documentation>
-			<xmcda tag="methodParameters">
-				<![CDATA[
-					<methodParameters>
-						<parameter>
-							<value>
-            					<real>%1</real>
-       						 </value>
-						</parameter>
-					</methodParameters>
-				]]>
-			</xmcda>
-			<gui status="preferGUI">
-				<entry id="%1" type="float" displayName="level">
-					<documentation>
-						<description>Level value for ACUTA algorithm</description>
-					</documentation>
-					<constraint>
-						<description>Level should be a positive integer</description>
-						<code>
-							<![CDATA[
-                              						 %1 > 0
-                            					]]>
-						</code>
-					</constraint>
-				</entry>
-			</gui>
-		</input>
-		
 		<input id="alt" name="alternatives" displayName="alternatives" isoptional="0">
 			<documentation>
 				<description>
@@ -98,7 +64,7 @@
 		<input id="altRank" name="alternativesRanking" displayName="alternativesRank" isoptional="1">
 			<documentation>
 				<description>
-					Subset of alternatives and the related ranking, in order to compute the method. The subset must be included in the global set of alternatives.
+					Ranking (preorder) of alternatives, corresponding to pariwize preference and indifference statements 
 				</description>
 			</documentation>
 			<xmcda tag="alternativesValues">
@@ -117,7 +83,7 @@
 		
 		<input id="altComp1"	name="alternativesPreferences"	displayName="alternativesPreferences" isoptional="1" >
 			<documentation>
-				<description>Partial order on a subset of alternatives, representing the strict preference, in order to compute the method. The subset must be included in the global set of alternatives.</description>
+				<description>Asymmetric part of the preference relation, representing strict preference statements, under the form of paiwise comparisons of alternatives.</description>
 			</documentation>
 			<xmcda tag="alternativesValues">
 				<![CDATA[
@@ -140,7 +106,7 @@
 		
 		<input id="altComp2"	name="alternativesIndifferences"	displayName="alternativesIndifferences" isoptional="1" >
 			<documentation>
-				<description>Partial order on a subset of alternatives, representing the indifference, in order to compute the method. The subset must be included in the global set of alternatives.</description>
+				<description>Symmetric part of the preference relation, representing indifference statements, under the form of paiwise comparisons of alternatives.</description>
 			</documentation>
 			<xmcda tag="alternativesValues">
 				<![CDATA[
@@ -160,8 +126,6 @@
 				                			]]>
 			</xmcda>
 		</input>
-		
-		
 		
 		<input id="crit" name="criteria" displayName="criteria" isoptional="0">
 			<documentation>
@@ -183,7 +147,7 @@
 		<input id="perfTable" name="performanceTable" displayName="performanceTable" isoptional="0">
 			<documentation>
 				<description>
-					Values of criteria for different alternatives. It must contains IDs of both criteria and alternatives described previously.
+					Values of criteria for different alternatives. It must contains IDs of both criteria and alternatives previously described.
 				</description>
 			</documentation>
 			<xmcda tag="performanceTable">
@@ -203,10 +167,10 @@
 			</xmcda>
 		</input>
 		
-		<input id="prefDir" name="preferencesDirections" displayName="preferenceDirections" isoptional="1">
+		<input id="prefDir" name="preferencesDirections" displayName="preferenceDirections" isoptional="0">
 			<documentation>
 				<description>
-					Optional information about preference directions of some criteria. If not specified : the algorithm will take care of it.
+					Optimization direction for the selected criteria (min or max).
 				</description>
 			</documentation>
 			<xmcda tag="criteriaValues">
@@ -223,10 +187,10 @@
 			</xmcda>
 		</input>
 		
-		<input id="critSeg" name="segments" displayName="criteriaSegments" isoptional="1">
+		<input id="critSeg" name="segments" displayName="criteriaSegments" isoptional="0">
 			<documentation>
 				<description>
-					Information about preference discretization of some criteria. If not specified : the algorithm will take care of it.
+					Number of segments in each value function to be constructed by UTA.
 				</description>
 			</documentation>
 			<xmcda tag="criteriaValues">
@@ -246,7 +210,7 @@
 		<output id="valueFunctions" name="valueFunctions" displayName="valueFunctions">
 			<documentation>
 				<description>
-					Main solution : value functions of the selected criteria, using UTA method.
+					Constructed value functions for the selected criteria and the provided rankings, using ACUTA method.
 				</description>
 			</documentation>
 			<xmcda tag="criteria">
@@ -254,31 +218,6 @@
 					<criteria mcdaConcept="criteria">
 						<criterion>
 							<criterionID>[..]</criterionID>
-							<criterionFunction>
-								<points>
-									<point>
-										<abscissa><real>[...]</real></abscissa>
-										<ordinate><real>[...]</real></ordinate>
-									</point>
-								</points>
-							</criterionFunction>
-						</criterion>
-					</criteria>
-				]]>
-			</xmcda>
-		</output>
-		
-		<output id="otherValueFunctions" name="otherValueFunctions" displayName="otherValueFunctions">
-			<documentation>
-				<description>
-					Other solutions (prefDirections) for valueFunctions using UTA method.
-				</description>
-			</documentation>
-			<xmcda tag="criteria">
-				<![CDATA[
-					<criteria mcdaConcept="criteria">
-						<criterion>
-							<criterionID>[...]</criterionID>
 							<criterionFunction>
 								<points>
 									<point>
