@@ -1,10 +1,10 @@
 Package: UTAR
-Version: 1.1.0
-Date: 2010-06-21
+Version: 1.2.0
+Date: 2011-05-21
 Title: UTAR
 Author: Boris Leistedt
 Maintainer: Boris Leistedt <boris.leistedt@gmail.com>
-Description: UTAR is a package for the R statistical software and specifically designed to provide functions for MCDA UTA models and the related webservices
+Description: UTAR is a R library specifically designed for the construction and learning of additive models in MultiCriteria Decision Aid (MCDA).
 Depends: R(>= 2.1.0), RXMCDA, methods  
 Suggests: RXMCDA, XML, MASS, lpSolve, linprog, LowRankQP
 Encoding: latin1

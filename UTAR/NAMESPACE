@@ -2,9 +2,9 @@
 
 ## Generics and functions defined in this package
 export(
-	"getValueFunctions",
+	   "getValueFunctions",
        "exportLog",
-	"extractContent",
+	   "extractContent",
        "exportSituation",
        "performanceTableToXML",
        "computeNormalisedPerformanceTable",

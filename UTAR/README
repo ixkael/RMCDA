@@ -1,8 +1,8 @@
 UTAR
 ------
 
-UTAR is a package for the R statistical software and specifically designed to provide functions for MCDA UTA models and the related webservices.
+UTAR is a R library specifically designed for additive models in MultiCriteria Decision Aid (MCDA). UTAR takes advantage of the XMCDA data standard (http://www.decision-deck.org/xmcda/). All input/output files are under this format. 
+UTAR provides a set of reusable functions for 1) XMCDA data extraction and parsing, 2) the construction of valid preference information 3) the initialization and learning of UTA models, leading to additive value functions.
 
 UTAR is released under the CeCILL license (v2),
-copyrighted and maintained by Boris Leistedt
-(boris.leistedt@gmail.com).
+copyrighted and maintained by Boris Leistedt (boris.leistedt@gmail.com).

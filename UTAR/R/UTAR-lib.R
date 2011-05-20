@@ -1,10 +1,10 @@
 #############################################################################
 #
-# Copyright Boris Leistedt, 2010  
+# Copyright Boris Leistedt, 2010-2011  
 # Email : boris.leistedt@gmail.com
 #		
-# UTAR is a library for the R statistical software and specifically designed 
-# to provide functions for MCDA UTA models, working with related webservices.
+# UTAR is a R library specifically designed for additive models in MultiCriteria Decision Aid (MCDA). UTAR takes advantage of the XMCDA data standard (http://www.decision-deck.org/xmcda/). All input/output files are under this format. 
+# UTAR provides a set of reusable functions for 1) XMCDA data extraction and parsing, 2) the construction of valid preference information 3) the initialization and learning of UTA models, leading to additive value functions.
 #
 # This software is governed by the CeCILL license (v2) under French law
 # and abiding by the rules of distribution of free software. You can
@@ -38,7 +38,8 @@
 #
 #
 
-# getValueFunctions return matrices that contains the value functions read in an XML tree. McdaConcept is not yet used
+
+# getValueFunctions return the matrices containing the value functions read in an XML tree. McdaConcept is not yet used
 getValueFunctions <- function ( tree,  mcdaConcept = NULL ) 
 {	
 	tmpErr <- try({
@@ -134,6 +135,7 @@ getValueFunctions <- function ( tree,  mcdaConcept = NULL )
 	return(list("gmatrix"=gmatrix,"umatrix"=umatrix,"status"="OK"))
 }
 
+
 # exportLog creates an output file containing a message concerning the execution
 exportLog <- function( message , location , error=TRUE , specialName = NULL) 
 {
@@ -141,30 +143,19 @@ exportLog <- function( message , location , error=TRUE , specialName = NULL)
 		message = "no error"
 	}
 	
-	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
-	z$addNode("methodMessages",close=FALSE)
+	text = newXMLNode( "text", message )
 		if( error == FALSE ){
-			z$addNode("logMessage",close=FALSE)
-			z$addNode("text",message)
-			z$closeTag()
+			logMessage = newXMLNode( "logMessage" )
 		}else{
-			z$addNode("errorMessage",close=FALSE)
-			z$addNode("text",message)
-			z$closeTag()
+			logMessage = newXMLNode( "errorMessage" )
 		}
-	z$closeTag()
+	methodMessages = newXMLNode( "methodMessages", attrs = c("mcdaConcept"="methodMessages") )
+	z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+	
+	addChildren(logMessage, text)
+	addChildren(methodMessages, logMessage)
+	addChildren(z, methodMessages)
 		
-	#z = newXMLDoc()
-	#newXMLNode("xmcda:XMCDA", 
-	#		attrs=c("xsi:schemaLocation" = "http://www.decision-deck.org/2009/XMCDA-2.0.0 http://www.decision-deck.org/xmcda/_downloads/XMCDA-2.0.0.xsd"),
-	#		suppressNamespaceWarning=TRUE, 
-	#		namespace = c("xsi" = "http://www.w3.org/2001/XMLSchema-instance", "xmcda" = "http://www.decision-deck.org/2009/XMCDA-2.0.0"), 
-	#		parent=z)
-	#if( error == FALSE ){
-	#	status <- putLogMessage(z, message , name = "executionStatus")
-	#}else{
-	#	status <- putErrorMessage(z, message , name = "Error")
-	#}
 	if(is.null(specialName)){
 		finalname = "message.xml"
 	}else{
@@ -176,16 +167,16 @@ exportLog <- function( message , location , error=TRUE , specialName = NULL)
 		outputLoc = paste(location,finalname,sep="/")
 	}
 	
-	status <- saveXML(z, file= outputLoc  )
+	status <- saveXML(z, indent=TRUE, file= outputLoc  )
 }
 
-# exportSituation creates an output file contoining the solution
 
+# exportSituation creates an output file contoining the solution
 exportSituation  <- function( solution , outputsLocation ) 
 {
 	if( is.null(solution) || solution$validation != TRUE )
 	{
-		z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
+		z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 		filename <- "valueFunctions.xml"
 		whereF =  paste(outputsLocation,filename,sep="/")
 		saveXML( z , file=whereF )
@@ -195,7 +186,7 @@ exportSituation  <- function( solution , outputsLocation )
 	z <- saveUtilityFunctionUnderXML(solution)
 	filename <- "valueFunctions.xml"
 	whereF =  paste(outputsLocation,filename,sep="/")
-	f <- tempfile()
+	#f <- tempfile()
 	#saveXML(z, f, encoding = "UTF-8",indent=TRUE, file=whereF,prefix = '<?xml version="1.0"?>\n')
 	saveXML( z , file=whereF )
 	z <- NULL
@@ -1034,9 +1025,7 @@ computeUTASTAR <- function( content )
 	if (inherits(err, "try-error") || result$validation == FALSE ){
 		return( list( "validation"=FALSE , "LOG"="error while computing constraint matrices for UTASTAR method" ) )
 	}
-	
-	print(result)
-	
+		
 	err <- try({
 				xvec <- 
 						solveUTASTAR(
@@ -1375,8 +1364,8 @@ countNbDiffAlternatives <- function( alternativesPreferences , alternativesIndif
 	if (inherits(err, "try-error") ){
 		return( list( "validation"=FALSE , "LOG"="error counting alternatives" ) )
 	}
-	return( length(nb) )
 	
+	return( length(nb) )
 }
 
 
@@ -1481,6 +1470,7 @@ solveUTASTAR <- function( c , A , Aeq , b , beq , nC )
 	return(list("x"=x,"validation"=TRUE))	
 }
 
+
 # computePostOptimalityAnalysis
 computePostOptimalityAnalysis <- function( sol ){
 	LOG = sol$LOG
@@ -1492,7 +1482,7 @@ computePostOptimalityAnalysis <- function( sol ){
 	err <- try({
 				LOG = NULL
 				xAC = NULL
-				x <-   sol$x
+				x <- sol$x
 				A <- sol$A
 				b <- sol$b
 				Aeq <- sol$Aeq
@@ -1581,6 +1571,8 @@ computePostOptimalityAnalysis <- function( sol ){
 	return( list( "validation"=TRUE , "LOG"=LOG , "x" = xAC , "umatrix"=umatrix , "gmatrix"=sol$gmatrix ) )
 }
 
+
+# Mean Value post-optimality method for UTA
 meanValue <- function(A,b,Aeq,beq,segs){
 	library( lpSolve )
 	library( linprog )
@@ -1611,7 +1603,7 @@ meanValue <- function(A,b,Aeq,beq,segs){
 						}
 					}
 					
-					print(c)
+					#print(c)
 					c_min = c
 					c_max = -c
 										
@@ -1666,6 +1658,8 @@ meanValue <- function(A,b,Aeq,beq,segs){
 	return( list("x"=xMV , "validation"=TRUE) )
 }
 
+
+# Delta maximization (utamp) post-optimality method for UTA
 utamp <- function(A,b,Aeq,beq,segs){
 	
 	library( lpSolve )
@@ -1703,6 +1697,8 @@ utamp <- function(A,b,Aeq,beq,segs){
 	return( list("x"=x , "validation"=TRUE) )
 }
 
+
+# Analytic Center post-optimality method for UTA
 analyticCenter <- function(x,A,b,Aeq)
 {
 	if(!is.vector(x)){
@@ -1742,16 +1738,17 @@ analyticCenter <- function(x,A,b,Aeq)
 		out <- analyticCenterInitialization(x,A,b)
 	})
 	if (inherits(err, 'try-error')){
-		return (list("LOG"="Problem while initialising analytic center","validation"=FALSE))
+		return (list("LOG"="Problem while initializing analytic center","validation"=FALSE))
 		}
 		
 	x <- out[[1]]
 	flag <- out[[2]]
 	oldnorm <- 0
 	xini <- x
+	
 	if (flag>0){
 		while (1){
-			s <- b - A%*%x
+			s <- b - A %*% x
 			sbis = as.vector(s)
 			
 			e = matrix(1,nrow=nrow(s),ncol=1)
@@ -1761,7 +1758,7 @@ analyticCenter <- function(x,A,b,Aeq)
 			grad <- t(A) %*% iS %*% e
 			Hess <- t(A) %*% iS %*% iS %*% A
 			
-			Zgrad <- t(Z)%*%grad
+			Zgrad <- t(Z) %*% grad
 			gradnorm <- sqrt(sum(Zgrad^2))
 			
 			if (gradnorm < 1e-6)
@@ -1771,6 +1768,7 @@ analyticCenter <- function(x,A,b,Aeq)
 			oldnorm = gradnorm
 			dz <- - pseudoinverse(t(Z) %*% Hess %*% Z) %*% Zgrad
 			n <- Z %*% dz
+
 			while (any((A %*% (x+n)) >= b)){
 				n = n %*% fac
 				stepredcount = stepredcount + 1
@@ -1787,9 +1785,11 @@ analyticCenter <- function(x,A,b,Aeq)
 			}
 		}
 	}
-	return (list("x"=x,"validation"=TRUE))	
+	return (list("x"=x,"validation"=TRUE, LOG="OK"))	
 }
 
+
+# Analytic center initialization procedure
 analyticCenterInitialization <- function(x,A,b)
 {
 	flag <- 1
@@ -1824,6 +1824,8 @@ analyticCenterInitialization <- function(x,A,b)
 	return(list(x,flag))
 }
 
+
+# Pseudoinverse computation
 pseudoinverse <- function (m, tol)
 {
 	msvd = fast.svd(m, tol)
@@ -1835,6 +1837,8 @@ pseudoinverse <- function (m, tol)
 	}
 }
 
+
+# Nullspace computation
 nullspace <- function(Aeq)
 {
 	m <- nrow(Aeq)
@@ -1858,6 +1862,8 @@ nullspace <- function(Aeq)
 	return(Z)
 }
 
+
+# Small singular values decomposition
 psmall.svd <- function (m, tol) 
 {
 	B = crossprod(m)
@@ -1871,6 +1877,8 @@ psmall.svd <- function (m, tol)
 	return(list(d = d, u = u, v = v))
 }
 
+
+# Fast singular values decomposition
 fast.svd <- function (m, tol)
 {
 	n = dim(m)[1]
@@ -1887,6 +1895,8 @@ fast.svd <- function (m, tol)
 	}
 }
 
+
+# Positive singular values decomposition
 positive.svd <- function (m, tol) 
 {
 	s = svd(m)
@@ -1897,6 +1907,8 @@ positive.svd <- function (m, tol)
 					v = s$v[, Positive, drop = FALSE]))
 }
 
+
+# Build umatrix (ordinates of the value functions)
 buildUmatrix <- function(u,segs)
 {
 	N = length(segs)
@@ -1914,42 +1926,36 @@ buildUmatrix <- function(u,segs)
 	return( round(um,digits=5) )
 }
 
+
+# Creates XML tree for the output of value functions
 saveUtilityFunctionUnderXML <- function( sol )
 {
-#<xmcda:XMCDA xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 file:../XMCDA-2.0.0.xsd"
-	z <- xmlTree("xmcda:XMCDA",namespaces=list(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
-#z$setNamespace("r")
+	z = newXMLNode("xmcda:XMCDA", namespace = c(xsi="http://www.w3.org/2001/XMLSchema-instance",xmcda="http://www.decision-deck.org/2009/XMCDA-2.0.0"))
 	
 	criteriaIDs <- rownames(sol$gmatrix)
-	z$addNode("criteria",close=FALSE,attrs=c("mcdaConcept"="criteria"))
-	if (TRUE){
+	criteria = newXMLNode("criteria",attrs=c("mcdaConcept"="criteria","name"=sol$filename))
 		gmatrix  <- sol$gmatrix
 		umatrix  <- sol$umatrix
 		for (i in 1:nrow(gmatrix)){
 			id = criteriaIDs[i]
 			indGrow = which(rownames(gmatrix)==id)
-			indUrow = which(rownames(umatrix)==id) 
-			z$addNode("criterion",close=FALSE,attrs=c("id"=id))
-			z$addNode("criterionFunction",close=FALSE)
-			z$addNode("points",close=FALSE)
-			for (j in 1:length(gmatrix[indGrow,])){
-				if(!is.na(gmatrix[indGrow,j])){
-					z$addNode("point",close=FALSE)
-					z$addNode("abscissa",close=FALSE)
-					z$addNode("real",gmatrix[indGrow,j])
-					z$closeTag()
-					z$addNode("ordinate",close=FALSE)
-					z$addNode("real",umatrix[indUrow,j])
-					z$closeTag()
-					z$closeTag()
+			indUrow = which(rownames(umatrix)==id)
+			criterion  = newXMLNode("criterion",attrs=c("id"=id), parent=criteria)
+			criterionFunction = newXMLNode("criterionFunction",parent=criterion)
+			points = newXMLNode("points", parent=criterionFunction)
+			
+			for (j in 1:length(gmatrix[i,])){
+				if(!is.na(gmatrix[i,j])){
+					point = newXMLNode("point", parent=points)
+					abscissa = newXMLNode("abscissa", parent=point)
+					real = newXMLNode("real",gmatrix[indGrow,j], parent=abscissa)
+					ordinate = newXMLNode("ordinate", parent=point)
+					real = newXMLNode("real",umatrix[indUrow,j], parent=ordinate)
 				}
 			}
-			z$closeTag()
-			z$closeTag()
-			z$closeTag()
 		}
-	}
-	z$closeTag()
-#cat(saveXML(z))
+	
+	addChildren(z, criteria)
+
 	return(z)
 }

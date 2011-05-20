@@ -4,10 +4,10 @@
 
 \title{Extract Content}
 
-\description{Extract and check content from an XML tree}
+\description{Extract and check content from an XML tree (generic function)}
 
 \usage{ 
-	content <- extractContent( xml , filename , aux=NULL )
+	content <- extractContent( xml, filename, aux=NULL )
 	}
 
 \arguments{

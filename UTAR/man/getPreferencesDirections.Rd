@@ -2,12 +2,12 @@
 
 \alias{getPreferencesDirections}
 
-\title{Get Preferences Directions}
+\title{Extracts Preferences Directions}
 
 \description{Extracts the directions (min or max) of utility functions}
 
 \usage{
-	sol <- getPreferencesDirections( tree )
+	getPreferencesDirections( tree )
 	}
 
 \arguments{

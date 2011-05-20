@@ -7,7 +7,7 @@
 \description{Finds and checks XML inputs and content in the inputsDirectory}
 
 \usage{
-	result <- findAndCheck( name , inputsLocation , listOfFiles , aux )
+	findAndCheck( name , inputsLocation , listOfFiles , aux )
 	}
 
 \arguments{
@@ -20,7 +20,7 @@
 \value{
 	\item{result}{The appropriate result}
 	\item{validation}{Validation tag (True if execution was successful)}
-	\item{log}{if necessary, in case of error}
+	\item{log}{If necessary, in case of error}
 	}
 
 \examples{}

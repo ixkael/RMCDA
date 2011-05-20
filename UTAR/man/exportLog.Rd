@@ -4,10 +4,10 @@
 
 \title{Exports LOG messages}
 
-\description{Exports log error or method messages under XML according to XMCDA standard}
+\description{Exports log error or method messages according to XMCDA standard}
 
 \usage{ 
-	exportLog(message,location,error=TRUE)
+	exportLog( message, location, error=TRUE )
 	}
 
 \arguments{

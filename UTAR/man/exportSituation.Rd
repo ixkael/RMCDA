@@ -2,12 +2,12 @@
 
 \alias{exportSituation}
 
-\title{Exports the outputs of the disaggregation procedure}
+\title{Exports value functions to XMCDA file}
 
-\description{Exports utility functions (created by function \code{saveUtilityFunctionUnderXML} under XML according to XMCDA standard}
+\description{Exports utility functions (created by function \code{saveUtilityFunctionUnderXML}) according to XMCDA standard}
 
 \usage{ 
-	exportLog(message,location,error=TRUE)
+	exportLog( message, location, error=TRUE )
 	}
 
 \arguments{
