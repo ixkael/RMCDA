@@ -15,7 +15,7 @@ if (inherits(err, 'try-error'))
 { 
 	content <- list( "validation"=FALSE, "LOG"="Fatal error while scanning inputfolder. Please check initial files")
 }
-print(content)
+#print(content)
 
 print("==================================")
 print(" REAL CONTENT")
@@ -28,8 +28,7 @@ if (inherits(err, 'try-error'))
 { 
 	realContent <- list( "validation"=FALSE, "LOG"="Fatal error while combining content. Please check initial files")
 }
-
-print(realContent)
+#print(realContent)
 
 print("==================================")
 print(" UTASTAR SOLUTION")
@@ -42,8 +41,7 @@ if (inherits(err, 'try-error'))
 { 
 	solutions <- list( "validation"=FALSE, "LOG"="Fatal error while computing ACUTA method. Please check data and initial files.")
 }
-
-print(UTASTARsolution)
+#print(UTASTARsolution)
 
 print("==================================")
 print(" POST-OP SOLUTION ")
