@@ -1,7 +1,7 @@
 <program_description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://www.decision-deck.org/ws/_downloads/description.xsd">
 	
-	<program provider="UTAR" name="UTASTAR" displayName="ACUTA" version="1.1" />
+	<program provider="UTAR" name="UTASTAR" displayName="UTASTAR" version="1.1" />
 	
 	<documentation>
 		<description>Computes UTASTAR method and if necessary uses post-optimality analysis among three well-known post-optimality methods</description>
