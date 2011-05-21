@@ -1,7 +1,7 @@
 <program_description xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.decision-deck.org/2009/XMCDA-2.0.0 http://sma.uni.lu/d2cms/ws/_downloads/description.xsd">
 	
-	<program provider="UTAR" name="ACUTA" displayName="ACUTA" version="1.0" />
+	<program provider="UTAR" name="ACUTA" displayName="ACUTA" version="2.0" />
 	
 	<documentation>
 		<description>Computes ACUTA method - analytic center for UTA - which provides a set of additive value functions that have a central position in the polyhedron of admissible value functions, given some preference information (preference relation).</description>
