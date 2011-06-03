@@ -2,24 +2,25 @@
 
 \alias{extractContent}
 
-\title{Extract Content}
+\title{Extracts Content}
 
-\description{Extract and check content from an XML tree (generic function)}
+\description{Extracts and checks content from an \code{XML} tree (generic function).}
 
 \usage{ 
-	content <- extractContent( xml, filename, aux=NULL )
+	out <- extractContent( xml, filename, aux=NULL )
 	}
 
 \arguments{
-	\item{xml}{XML tree}
+	\item{xml}{\code{XML} tree}
 	\item{filename}{Filename}
-	\item{aux}{aux file if necessary}
+	\item{aux}{Aux file if necessary}
 	}
 
 \value{
+	A list structured as follows:
 	\item{content}{The appropriate result}
 	\item{validation}{Validation tag (True if execution was successful)}
-	\item{log}{if necessary, in case of error}
+	\item{log}{If necessary, in case of error}
 	}
 
 \examples{}

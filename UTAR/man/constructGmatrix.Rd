@@ -2,14 +2,14 @@
 
 \alias{constructGmatrix}
 
-\title{Constructs G matrices}
+\title{Constructs Gmatrices}
 
 \description{
 	Constructs the Gmatrix (value functions abscissa) given the vector solution from UTA or ACUTA.
 	}
 
 \usage{
-	constructGmatrix(u,segs)
+	gmatrix <- constructGmatrix(x,segs)
 	}
 
 \arguments{

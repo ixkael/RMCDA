@@ -2,12 +2,12 @@
 
 \alias{saveUtilityFunctionUnderXML}
 
-\title{Exports value functions under XMCDA tree}
+\title{Exports value functions under XML tree}
 
-\description{Creates valid XMCDA tree for storing the value functions for gmatrix/umatrix structures}
+\description{Creates valid \code{XML-XMCDA} tree for storing the value functions for gmatrix/umatrix structures.}
 
 \usage{
-	saveUtilityFunctionUnderXML(valuefunction)
+	out <- saveUtilityFunctionUnderXML(valuefunction)
 	}
 
 \arguments{
@@ -15,7 +15,7 @@
 	}
 
 \value{
-	Returns a valid XML-XMCDA tree
+	A valid \code{XML-XMCDA} tree
 	}
 
 \examples{}

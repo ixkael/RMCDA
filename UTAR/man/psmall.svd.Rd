@@ -7,11 +7,11 @@
 \description{Small singular values decomposition}
 
 \usage{
-	psmall.svd(m, tol) 
+	out <- psmall.svd(m, tol) 
 	}
 
 \arguments{
-	\item{m}{Matrix}
+	\item{m}{A matrix}
 	\item{tol}{Tolerence}
 	}
 

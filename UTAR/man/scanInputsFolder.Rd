@@ -2,12 +2,12 @@
 
 \alias{scanInputsFolder}
 
-\title{Detects input files and analyse it}
+\title{Detects input files and analyses it}
 
 \description{Scans input directory, detects and analyse inputs of given name ("alternatives.xml" , "alternativesRanking.xml" , "alternativesPreferences.xml" , "alternativesIndifferences.xml" , "criteria.xml" , "delta.xml" , "segments.xml" , "preferencesDirections.xml" , "performanceTable.xml" , "method.xml").}
 
 \usage{ 
-	scanInputsFolder( inputsLocation ) 
+	out <- scanInputsFolder( inputsLocation ) 
 	}
 
 \arguments{

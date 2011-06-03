@@ -7,14 +7,14 @@
 \description{Positive singular value decomposition}
 
 \usage{
-	positive.svd(m, tol) 
+	out <- positive.svd(m, tol) 
 	}
 
 \arguments{
-	\item{m}{Matrix}
+	\item{m}{A matrix}
 	\item{tol}{Tolerence}
 	}
 
-\value{}
+\value{A matric}
 
 \examples{}

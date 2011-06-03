@@ -4,15 +4,15 @@
 
 \title{Counts the number of different alternatives}
 
-\description{Counts the number of different alternatives in a doublet preference relation / indifference relation}
+\description{Counts the number of different alternatives in a doublet preference relation / indifference relation.}
 
 \usage{
-	countNbDiffAlternatives( alternativesPreferences, alternativesIndifferences )
+	n <- countNbDiffAlternatives( alternativesPreferences, alternativesIndifferences )
 	}
 
 \arguments{
-	\item{alternativesPreferences}{}
-	\item{alternativesIndifferences}{}
+	\item{alternativesPreferences}{A two-column matrix containing pairs of alternatives (preference statements)}
+	\item{alternativesIndifferences}{A two-column matrix containing pairs of alternatives (indifference statements)}
 	}
 
 \value{

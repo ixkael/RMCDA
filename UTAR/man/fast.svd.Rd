@@ -11,7 +11,7 @@
 	}
 
 \arguments{
-	\item{m}{Matrix}
+	\item{m}{A matrix}
 	\item{tol}{Tolerence}
 	}
 

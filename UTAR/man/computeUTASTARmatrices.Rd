@@ -2,12 +2,12 @@
 
 \alias{computeUTASTARmatrices}
 
-\title{Computes UTASTAR constraint matrices (UTA model)}
+\title{Computes UTASTAR constraints matrices}
 
-\description{Given a preference information and model parameters, computes the equality and inequality matrices and vectors related to the polyhedron of admissible value functions}
+\description{Given a preference information and model parameters, computes the equality and inequality matrices and vectors related to the polyhedron of admissible value functions of UTASTAR.}
 
 \usage{
-	computeUTASTARmatrices( performanceTable , ranking , delta , prefPairs , indiffPairs , prefDirections , segmentation = FALSE  )
+	out <- computeUTASTARmatrices( performanceTable , ranking , delta , prefPairs , indiffPairs , prefDirections , segmentation = FALSE  )
 	}
 
 \arguments{
@@ -20,11 +20,12 @@
 	}
 
 \value{
-	\item{c}{Vector : objective function}
-	\item{A}{Matrix : inequality matrix}
-	\item{b}{Vector : inequality right-member}
-	\item{Aeq}{Matrix : equality matrix}
-	\item{beq}{Vector : inequality right-member}
+	A list structured as follows:
+	\item{c}{Vector : objective constraints function}
+	\item{A}{Matrix : inequality constraints matrix}
+	\item{b}{Vector : inequality constraints right-member}
+	\item{Aeq}{Matrix : equality constraints matrix}
+	\item{beq}{Vector : inequality constraints right-member}
 	}
 
 \examples{}

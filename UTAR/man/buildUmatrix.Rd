@@ -1,16 +1,15 @@
 \name{buildUmatrix}
 
-
 \alias{buildUmatrix}
 
 \title{Value functions reconstruction}
 
 \description{
-	Constructs the Umatrix (value functions ordinates) given the vector solution from UTA or ACUTA.
+	Constructs the Umatrix (ordinates of the value functions) from the vector-solution of UTA or ACUTA.
 	}
 
 \usage{
-	buildUmatrix(u,segs)
+	umatrix <- buildUmatrix(x,segs)
 	}
 
 \arguments{
@@ -19,7 +18,7 @@
 	}
 
 \value{
-	A matrix containing the ordinates of the value functions, with the proper number of breakpoints and dimensions
+	\item{umatrix}{A matrix containing the ordinates of the value functions, with the proper number of breakpoints and criteria}
 	}
 
 \examples{}

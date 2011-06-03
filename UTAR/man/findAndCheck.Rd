@@ -2,12 +2,12 @@
 
 \alias{findAndCheck}
 
-\title{Finds and checks XML inputs and content}
+\title{Finds and checks \code{XML} inputs and content}
 
-\description{Finds and checks XML inputs and content in the inputsDirectory}
+\description{Finds and checks \code{XML} inputs and content in the inputsDirectory.}
 
 \usage{
-	findAndCheck( name , inputsLocation , listOfFiles , aux )
+	out <- findAndCheck( name , inputsLocation , listOfFiles , aux )
 	}
 
 \arguments{
@@ -18,6 +18,7 @@
 	}
 
 \value{
+	A list structured as follows:
 	\item{result}{The appropriate result}
 	\item{validation}{Validation tag (True if execution was successful)}
 	\item{log}{If necessary, in case of error}

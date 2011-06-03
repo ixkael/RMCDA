@@ -4,14 +4,14 @@
 
 \title{Computes the nullspace}
 
-\description{Computes the nullspace}
+\description{Computes the nullspace of a matrix}
 
 \usage{
-	nullspace(M)
+	out <- nullspace(M)
 }
 
 \arguments{
-	\item{M}{Matrix}
+	\item{M}{A matrix}
 	}
 
 \value{

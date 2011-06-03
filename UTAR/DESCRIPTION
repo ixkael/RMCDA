@@ -1,12 +1,13 @@
 Package: UTAR
-Version: 1.2.0
-Date: 2011-05-21
-Title: UTAR
+Version: 1.3.0
+Date: 2011-06-03
+Title: UTAR library for MCDA
 Author: Boris Leistedt
 Maintainer: Boris Leistedt <boris.leistedt@gmail.com>
-Description: UTAR is a R library specifically designed for the construction and learning of additive models in MultiCriteria Decision Aid (MCDA).
-Depends: R(>= 2.1.0), RXMCDA, methods  
-Suggests: RXMCDA, XML, MASS, lpSolve, linprog, LowRankQP
+Description: UTAR is a R library specifically designed for the construction and the learning of UTA models in MultiCriteria Decision Aid (MCDA). The main features are: data extraction, model initialization, selection strategies and supervized learning, model assessment in terms of functions and relations, data layout and output.
+Depends: R(>= 2.1.0), RXMCDA, XML, lpSolve, LowRankQP
+Suggests: MASS, linprog
 Encoding: latin1
 License: CeCILL 2 (GNU GPL 2 compatible)
-Packaged: Mon 21 06 2010; Boris Leistedt
+URL: http://github.com/ixkael/RMCDA
+Packaged: Fry 03 06 2011; Boris Leistedt

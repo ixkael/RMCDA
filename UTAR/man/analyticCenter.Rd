@@ -2,14 +2,14 @@
 
 \alias{analyticCenter}
 
-\title{Analytic center computation}
+\title{Computes the analytic center}
 
 \description{
-	This method computes the analytic center of the constraint polyhedron. It requires a first solution (x) in this polyhedron, that can be obained using simple linear programming techniques, such as the lpSolve package. The A-Aeq matrices are the inequality-equality matrices
+	Computes the analytic center of a polyhedron defined with equality and inequality constraints. It requires a first solution (x) in this polyhedron, which may be obained using simple linear programming techniques, such as the lpSolve package.
 	}
 	
 \usage{
-	analyticCenter(x,A,b,Aeq)
+	xout <- analyticCenter(x,A,b,Aeq)
 	}
 	
 \arguments{
@@ -20,6 +20,7 @@
 	}
 	
 \value{
+	A list structured as follows:
 	\item{x}{The solution (vectorized value function)}
 	\item{validation}{Success or failure tag}
 	\item{LOG}{Log information}

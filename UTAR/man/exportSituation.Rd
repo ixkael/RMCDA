@@ -4,15 +4,15 @@
 
 \title{Exports value functions to XMCDA file}
 
-\description{Exports utility functions (created by function \code{saveUtilityFunctionUnderXML}) according to XMCDA standard}
+\description{Exports the constructed value functions (created by function \code{saveUtilityFunctionUnderXML}) into XML file according to XMCDA standard.}
 
 \usage{ 
-	exportLog( message, location, error=TRUE )
+	exportSituation( solution, outputsLocation )
 	}
 
 \arguments{
 	\item{solution}{List containing at least two matrices named "umatrix" and "gmatrix" that are the standard outputs for utility and value functions.}
-	\item{location}{Where you want the XML file to be saved}
+	\item{outputsLocation}{Where you want the XML file to be saved}
 	}
 
 \value{

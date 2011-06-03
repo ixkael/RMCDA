@@ -2,20 +2,20 @@
 
 \alias{performanceTableToXML}
 
-\title{Converts performanceTable into XMCDA tree}
+\title{Converts a performanceTable into an \code{XML} tree}
 
-\description{Create an XML tree (according to XMCDA standard) based on performanceTable given as an input.}
+\description{Creates an XML tree containing a given performanceTable according to \code{XML-XMCDA} standard.}
 
 \usage{
-	performanceTableToXML( performanceTable )
+	out <- performanceTableToXML( performanceTable )
 	}
 
 \arguments{
-	\item{data}{Classical performanceTable according to XMCDA standard, that may be saved under XML. Matrix containing evaluations of alternatives on different criteria.}
+	\item{data}{Classical performanceTable according to \code{XMCDA} standard, that may be saved under \code{XML}. Matrix containing evaluations of alternatives on different criteria.}
 	}
 
 \value{
-	XML tree that might be saved using \code{saveXML()}
+	\code{XML} tree that might be saved using \code{saveXML()}
 	}
 
 \examples{}

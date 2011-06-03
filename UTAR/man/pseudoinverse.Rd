@@ -7,11 +7,11 @@
 \description{Computes pseudoinverse of a matrix}
 
 \usage{
-	pseudoinverse(m, tol) 
+	out <- pseudoinverse(m, tol) 
 	}
 
 \arguments{
-	\item{m}{Matrix}
+	\item{m}{A matrix}
 	\item{tol}{Tolerence}
 	}
 

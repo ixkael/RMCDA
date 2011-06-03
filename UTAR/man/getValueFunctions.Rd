@@ -2,16 +2,16 @@
 
 \alias{getValueFunctions}
 
-\title{Extracts utility functions from XMCDA file}
+\title{Extracts value functions from XMCDA file}
 
-\description{Extracts utility functions from an XML parsed tree according to the \code{XMCDA} standard}
+\description{Extracts the value functions from an XML parsed tree according to the \code{XMCDA} standard.}
 
 \usage{ 
-	getValueFunctions( tree, mcdaConcept = null ) 
+	out <- getValueFunctions( tree, mcdaConcept = null ) 
 	}
 	
 \arguments{
-	\item{tree}{Object containing the \code{XMCDA} XML tree}
+	\item{tree}{Object containing the \code{XMCDA} \code{XML} tree}
 	\item{mcdaConcept}{A string containing the specific \code{mcdaConcept} attribute which should be searched for}
 	}
 

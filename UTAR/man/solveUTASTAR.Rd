@@ -9,21 +9,22 @@
 	}
 
 \usage{
-	solveUTASTAR( c, A, Aeq, b, beq, nC )
+	out <- solveUTASTAR( c, A, Aeq, b, beq, nC )
 	}
 
 \arguments{
 	\item{c}{Vector : objective function}
-	\item{A}{Matrix : inequality matrix}
-	\item{b}{Vector : inequality right-member}
-	\item{Aeq}{Matrix : equality matrix}
-	\item{beq}{Vector : inequality right-member}
+	\item{A}{Matrix : inequality constraints matrix}
+	\item{b}{Vector : inequality constraints right-member}
+	\item{Aeq}{Matrix : equality constraints matrix}
+	\item{beq}{Vector : inequality constraints right-member}
 	\item{nC}{Number of dimensions (criteria) in the problem}
 	}
 	
 \value{
-	\item{x}{The solution (vectorized value function)}
-	\item{validation}{Success or failure tag}
+	A list structured as follows:
+	\item{x}{The solution (Vectorized value function)}
+	\item{validation}{Success or failure flage}
 	\item{LOG}{Log information}
 	}
 

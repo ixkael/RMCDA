@@ -4,10 +4,10 @@
 
 \title{Computes UTASTAR disaggregation method}
 
-\description{Meta-method to compute and solve the UTA linear programming problem}
+\description{Meta-method to compute and solve the UTA linear programming problem.}
 
 \usage{
-	computeUTASTAR( data )
+	out <- computeUTASTAR( data )
 	}
 
 \arguments{
@@ -15,12 +15,12 @@
 	}
 
 \value{
-	List containing the extracted content in appropriate format :
+	A list structured as follows:	
 	\item{x}{Vector : constructed value function}
-	\item{A}{Matrix : inequality matrix}
-	\item{b}{Vector : inequality right-member}
-	\item{Aeq}{Matrix : equality matrix}
-	\item{beq}{Vector : inequality right-member}
+	\item{A}{Matrix : inequality constraints matrix}
+	\item{b}{Vector : inequality constraints right-member}
+	\item{Aeq}{Matrix : equality constraints matrix}
+	\item{beq}{Vector : inequality constraints right-member}
 	}
 
 \examples{}

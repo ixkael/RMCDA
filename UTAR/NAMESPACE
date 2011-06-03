@@ -1,13 +1,14 @@
-## Namespace for RXMCDA
-
+## Namespace for UTAR
 ## Generics and functions defined in this package
+
 export(
 	   "getValueFunctions",
        "exportLog",
 	   "extractContent",
        "exportSituation",
+       "constructGmatrix",
        "performanceTableToXML",
-       "computeNormalisedPerformanceTable",
+       "computeNormalizedPerformanceTable",
        "scanInputsFolder",
        "findAndCheck",
        "extractContent",
@@ -19,7 +20,6 @@ export(
        "computeUTASTAR",
        "computeUTASTARmatrices",
        "countNbDiffAlternatives",
-       "contructGmatrix",
        "solveUTASTAR",
        "computePostOptimalityAnalysis",
        "meanValue",
@@ -32,6 +32,32 @@ export(
        "fast.svd",
        "positive.svd",
        "buildUmatrix",
-       "saveUtilityFunctionUnderXML"
+       "saveUtilityFunctionUnderXML",
+       "alreadyDone",
+       "extractSubsets",
+       "generateUtilities",
+       "computeranking",
+       "generateStandardAlternatives",
+       "generateRandomAlternatives",
+       "initializeModel",
+       "updateModel",
+       "computeAlternativesIndicator",
+       "computeEmptyUTASTARmatrices",
+       "updateLearningSet",
+       "computeequation",
+       "computeNecessaryRelation",
+       "getRanking",
+       "computeUtilitiesIndicator",
+       "computeUtilitiesIndicator_weights",
+       "computebound",
+       "comparerankings",
+       "nextpair_volumeoriented",
+       "nextpair_relationoriented",
+       "nextpair_visionary",
+       "generateEasyLearningSet",
+       "findcprofile",
+       "invertprofile",
+       "generateYprofileFromX",
+       "checkEasyPair"
        )
 

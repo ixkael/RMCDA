@@ -4,10 +4,10 @@
 
 \title{Computes post-optimality analysis}
 
-\description{Computes the post-optimality analysis of a given solution (interior point of the constraints polyhedron) for UTA models}
+\description{Computes the post-optimality analysis from a given solution (interior point of the constraints polyhedron) for UTA models. The three available methods are Analytic center, UTASTAR, and UTAMP.}
 
 \usage{
-	computePostOptimalityAnalysis( data )
+	xout <- computePostOptimalityAnalysis( data )
 	}
 
 \arguments{
@@ -15,6 +15,7 @@
 	}
 
 \value{
+	A list structured as follows:
 	\item{x}{The solution (vectorized value function)}
 	\item{validation}{Success or failure tag}
 	\item{LOG}{Log information}
