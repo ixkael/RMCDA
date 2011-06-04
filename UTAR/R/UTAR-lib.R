@@ -1572,7 +1572,6 @@ computePostOptimalityAnalysis <- function( sol ){
 # Mean Value post-optimality method for UTA
 meanValue <- function(A,b,Aeq,beq,segs){
 	library( lpSolve )
-	library( linprog )
 	
 	err <- try({
 				
@@ -1659,9 +1658,7 @@ meanValue <- function(A,b,Aeq,beq,segs){
 # Delta maximization (utamp) post-optimality method for UTA
 utamp <- function(A,b,Aeq,beq,segs){
 	
-	library( lpSolve )
-	library( linprog )
-	
+	library( lpSolve )	
 	
 	err <- try({
 				nCrit = length(segs)
