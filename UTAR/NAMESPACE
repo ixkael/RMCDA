@@ -46,7 +46,7 @@ export(
        "updateLearningSet",
        "computeequation",
        "computeNecessaryRelation",
-       "getRanking",
+       "getAnalyticCenterRanking",
        "computeUtilitiesIndicator",
        "computeUtilitiesIndicator_weights",
        "computebound",

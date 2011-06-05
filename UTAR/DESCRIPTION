@@ -6,7 +6,7 @@ Author: Boris Leistedt
 Maintainer: Boris Leistedt <boris.leistedt@gmail.com>
 Description: UTAR is a R library specifically designed for the construction and the learning of UTA models in MultiCriteria Decision Aid (MCDA). The main features are: data extraction, model initialization, selection strategies and supervized learning, model assessment in terms of functions and relations, data layout and output.
 Depends: R(>= 2.1.0), RXMCDA, XML, lpSolve, LowRankQP
-Suggests: MASS, linprog
+Suggests: MASS 
 Encoding: latin1
 License: CeCILL 2 (GNU GPL 2 compatible)
 URL: http://github.com/ixkael/RMCDA

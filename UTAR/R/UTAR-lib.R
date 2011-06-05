@@ -1189,11 +1189,14 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 					
 					
 					
-						x <- aindex-1+S+Ncrit
+						x <- aindex+S+Ncrit
+			
 						A[i,x] <- -1
 						A[i,x+Nalt] <- 1
 					
-						x <- aindex+S+Ncrit
+					
+						x <- bindex+S+Ncrit
+					
 						A[i,x] <- 1
 						A[i,x+Nalt] <- -1
 					
@@ -1281,16 +1284,11 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 						}
 						
 						
-						if (i==1){
-							x <- S+Ncrit+aindex-1
-						}else{
-							x <- S+Ncrit+aindex-1
-						}
-						
+						x <- S+Ncrit+aindex
 						Aeq[y,x] <- -1
 						Aeq[y,x+Nalt] <- 1
 						
-						x <- S+Ncrit+bindex-1
+						x <- S+Ncrit+bindex
 						Aeq[y,x] <- 1
 						Aeq[y,x+Nalt] <- -1
 					}	
@@ -2076,14 +2074,17 @@ computeranking <- function( perfTable, gmatrix, umatrix )
 {
   normPerfTable = computeNormalizedPerformanceTable(perfTable,gmatrix,umatrix)
 
-  ranking = cbind( c(1:nrow(normPerfTable)), rep(0,nrow(normPerfTable) ) )
+  ranking = cbind( 1:nrow(normPerfTable), rep(0,nrow(normPerfTable) ) )
+  rownames(ranking) = rownames(normPerfTable)
   for( i in c(1:nrow(normPerfTable)) )
   {
-  	ranking[i,2] = sum(normPerfTable[i,])
+  	ranking[i,2] = round(sum(normPerfTable[i,]),digits=4)
   }
+
+  or = order(ranking[,2],decreasing=TRUE)
   
-  ranking[,2] = order(ranking[,2],decreasing=TRUE)
-  rownames(ranking) = rownames(normPerfTable)
+  ranking = ranking[or,]  
+  ranking[,1] = order(ranking[,2],decreasing=TRUE)
   
   return(ranking)
 }
@@ -2522,7 +2523,7 @@ computeNecessaryRelation <- function(M, previousNecess)
 
 
 # Computes the ranking corresponding to the analytic center of the model
-getRanking <- function( M )
+getAnalyticCenterRanking <- function( M )
 {
 	P = M$initialPerformanceTable
 	N <- length(as.numeric(M$orientedSegment))
@@ -2829,7 +2830,7 @@ nextpair_visionary <- function( L, M, U )
 generateEasyLearningSet <- function( M )
 {
 	library(lpSolve)
-	res = getRanking(M)
+	res = getAnalyticCenterRanking(M)
 	uac = res$uac
 	nbcrit = M$nbcrit
 	alpha = M$nbnodes
