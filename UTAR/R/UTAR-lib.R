@@ -1125,9 +1125,7 @@ computeUTASTARmatrices <- function( performanceTable , ranking , delta , prefPai
 				Nalt <- countNbDiffAlternatives( totalPrefPairs , totalIndiffPairs )
 				
 				# segmentation des fonctions d'utilité
-				R <- constructGmatrix( prefDirections , performanceTable , segmentation )
-#########################			prefDirections <- R$prefDirections
-				gmatrix <- R$gmatrix 
+				gmatrix <- constructGmatrix( prefDirections , performanceTable , segmentation )
 				S <- sum( abs( as.numeric(prefDirections) ) )
 				
 				
@@ -1366,7 +1364,7 @@ countNbDiffAlternatives <- function( alternativesPreferences , alternativesIndif
 
 
 # constructGmatrix
-constructGmatrix <- function( prefDirections , performanceTable , segmentation ){
+constructGmatrix <- function( prefDirections , performanceTable , segmentation = TRUE ){
 	
 	err <- try({
 				Glist <- list()
@@ -1416,7 +1414,7 @@ constructGmatrix <- function( prefDirections , performanceTable , segmentation )
 	if (inherits(err, "try-error") ){
 		return( list( "validation"=FALSE , "LOG"="error during construction of Gmatrix" ) )
 	}
-	return( list( "prefDirections"=prefDirections , "gmatrix"=gmatrix ))
+	return( gmatrix )
 }
 
 # solveUTASTARlp solves the lp problem for the UTASTAR disaggregation model
@@ -1965,7 +1963,7 @@ alreadyDone <- function( donepairs , pair )
 	
 	for( i in 1:nrow(donepairs) )
 	{
-		if( all(donepairs[i,1:2] == pair[1:2]) )
+		if( donepairs[i,1] == pair[1] && donepairs[i,2] == pair[2] )
 		{
 			return(TRUE)
 		}
@@ -2034,6 +2032,48 @@ restrictPerformanceTable <- function(content)
 	}
 
 	return(PT)
+}
+
+
+# Generate random piecewise linear g/u-matrices according to preference directions and performanceTable
+randomPiecewiseGUmatrices <- function( prefDirs, performanceTable )
+{
+	nbcrit = ncol( prefDirs )
+	nbnodes = 2+floor(3*runif(nbcrit))
+	names(nbnodes) = prefDirs[1,]
+	umatrix = matrix( NA, nrow = nbcrit, ncol=max(nbnodes) )
+	renorm = 0
+	for( i in c(1:nbcrit) )
+  	{
+		if( prefDirs[2,i] == "max" ){
+			umatrix[i,1] = 0.0
+			if( nbnodes[i] > 2){
+				for( j in 2:(nbnodes[i]-1) ){
+  	        		umatrix[i,j] = umatrix[i,j-1] + ( (j/nbnodes[i]) - umatrix[i,j-1] )*runif(1)
+  	  			}
+  	  		}
+			umatrix[i,nbnodes[i]] = max(umatrix[i,nbnodes[i]-1],0.05) + ( 1 - max(umatrix[i,nbnodes[i]-1],0.10) )*runif(1)
+			renorm = renorm + umatrix[i,nbnodes[i]]
+			nbnodes[i] = nbnodes[i] - 1
+		}
+		if( prefDirs[2,i] == "min" ){
+			umatrix[i,nbnodes[i]] = 0.0
+			if( nbnodes[i] > 2){
+				for( j in (nbnodes[i]-1):2 ){
+  	        		umatrix[i,j] = umatrix[i,j+1] + ( (j/nbnodes[i]) - umatrix[i,j+1] )*runif(1)
+  	  			}
+  	  		}
+			umatrix[i,1] = max(umatrix[i,2],0.05) + ( 1 - max(umatrix[i,2],0.10) )*runif(1)
+			renorm = renorm + umatrix[i,1]
+			nbnodes[i] = 1 - nbnodes[i]
+		}  	
+  	}
+  	umatrix = umatrix / renorm
+  	rownames(umatrix) = prefDirs[1,]
+  	
+  	gmatrix = constructGmatrix( nbnodes , performanceTable , TRUE )
+  	
+  	return(list( "gmatrix"=gmatrix, "umatrix"= umatrix ))	
 }
 
 
@@ -2159,34 +2199,60 @@ generateRandomAlternatives <- function( n, p )
 
 
 # Initializes a UTA model and all the appropriate structures
-initializeModel <- function( A, alpha )
+initializeModel <- function( A, segments, prefDirs )
 {
   M = list()
+  if( is.null(rownames(A))){
+  	M$alternativesIDs = 1:nrow(A)
+  }else{
+  	M$alternativesIDs = rownames(A)	
+  }
+  if( is.null(colnames(A))){
+  	M$criteriaIDs = 1:ncol(A)
+  }else{
+  	M$criteriaIDs = colnames(A)	
+  }
   M$nalt = nrow(A)
   M$nbcrit = ncol(A)
   M$nbnodes = alpha	
   M$delta = 0.0001
   M$combins = extractSubsets(nrow(A),2)
-  M$orientedSegment = rep(M$nbnodes,M$nbcrit)
-  names(M$orientedSegment) = c(1:M$nbcrit)
+  for( i in 1:nrow(M$combins)){
+		for( j in 1:ncol(M$combins)){
+			M$combins[i,j] = rownames(A)[as.numeric(M$combins[i,j])]
+		}
+	}
+  M$orientedSegment = as.numeric(segments[2,])
+  names(M$orientedSegment) = segments[1,]
+  tempids = prefDirs[1,which(prefDirs[2,]=="min")]
+  for( id in tempids ){
+  	temp = M$orientedSegment
+  	neg = temp[which(names(M$orientedSegment)==id)]
+  	M$orientedSegment[which(names(M$orientedSegment)==id)] = - as.numeric(neg)
+  }
   M$segmentation = TRUE
   M$alternativesPreferences = matrix(nrow=0,ncol=3)
   M$alternativesIndifferences = matrix(nrow=0,ncol=3)
   M$alternativesRanking = matrix(nrow=0,ncol=3)
   M$initialPerformanceTable = A
-  M$gmatrix = matrix(0,ncol=(alpha+1),nrow=ncol(A))
-  if( alpha == 1 ){ M$gmatrix[,2]=rep(1,ncol(A)) }else{
-  for( i in 1:ncol(A) ){
-  	M$gmatrix[i,] <- seq(from=0,by=(1/(alpha)), to=1)
-  	}}
-  rownames(M$gmatrix) = c(1:M$nbcrit)
-  M$necess = matrix(ncol=2,nrow=0)
+  M$gmatrix = constructGmatrix( M$orientedSegment , M$initialPerformanceTable , M$segmentation )   
   matrices <- computeEmptyUTASTARmatrices( M$orientedSegment )
   M$A <- matrices$A
   M$b <- matrices$b
   M$Aeq <- matrices$Aeq
   M$beq <- matrices$beq
   M$segs <- matrices$segs 
+  M$necess = (computeNecessaryRelation(M, NULL))$necess
+  
+  M$remainingAxA = matrix(ncol=2*M$nbcrit,nrow=0)
+	PT = M$initialPerformanceTable
+	for( i in 1:nrow(M$combins)){
+		a1 = M$combins[i,1]
+		a2 = M$combins[i,2]
+		pa1 = PT[which(rownames(PT)==a1),]
+		pa2 = PT[which(rownames(PT)==a2),]
+		M$remainingAxA = rbind(M$remainingAxA, c(pa1,pa2))
+	}
   
   return(M)
 }
@@ -2235,6 +2301,15 @@ updateModel <- function( M, nextpair, U )
 	Mn$necess = temp$necess 
 	Mn$combins = temp$combins
 	
+	Mn$remainingAxA = matrix(ncol=2*M$nbcrit,nrow=0)
+	PT = Mn$initialPerformanceTable
+	for( i in 1:nrow(Mn$combins)){
+		a1 = Mn$combins[i,1]
+		a2 = Mn$combins[i,2]
+		pa1 = PT[which(rownames(PT)==a1),]
+		pa2 = PT[which(rownames(PT)==a2),]
+		Mn$remainingAxA = rbind(Mn$remainingAxA, c(pa1,pa2))
+	}
 
 	return(Mn)
 }
@@ -2353,13 +2428,12 @@ updateLearningSet <- function( L, M, pos )
 {
 	n = ncol(L)/2
 	newL = matrix(ncol=2*n,nrow=0)
-	PT = round( M$initialPerformanceTable , digits = 5 )
-	L = round( L , digits = 5 )
-	
+	PT = round( M$initialPerformanceTable , digits = 4 )
+	L = round( L , digits = 4 )
 	for( i in 1:nrow(L) ){
 		for( j in 1:nrow(PT)){
-			if( all(L[i,1:n] == PT[j,1:n]) ){ a1 = j }
-			if( all(L[i,(n+1):(2*n)] == PT[j,1:n]) ){ a2 = j }
+			if( all(L[i,1:n] == PT[j,1:n]) ){ a1 = rownames(PT)[j] }
+			if( all(L[i,(n+1):(2*n)] == PT[j,1:n]) ){ a2 = rownames(PT)[j] }
 			}
 		if(	i != pos
 			&&
@@ -2469,7 +2543,7 @@ computeNecessaryRelation <- function(M, previousNecess)
 			
 			uy=c(rep(">=",length(b)),rep("==",length(beq)))
 				
-			cc = computeequation( PT[a1,], PT[a2,], M )
+			cc = computeequation( PT[which(rownames(PT)==a1),], PT[which(rownames(PT)==a2),], M )
 
 			d <- c( rep(">=",length(b)) , rep("==",length(beq)) )
 						
@@ -2499,7 +2573,7 @@ computeNecessaryRelation <- function(M, previousNecess)
 
 			cd = rep(0,length(cd))
 
-			cc = computeequation( PT[a2,], PT[a1,], M )
+			cc = computeequation( PT[which(rownames(PT)==a2),], PT[which(rownames(PT)==a1),], M )
 			
 			d <- c( rep(">=",length(b)) , rep("==",length(beq)) )
 						
@@ -2554,6 +2628,8 @@ getAnalyticCenterRanking <- function( M )
 	ranking[,2]=ranking[or,2]
 	
 	ranking = computeranking( P, M$gmatrix, umatrix )
+	colnames(ranking) = c("rank","value")
+	
 	return(list("acranking"= ranking,"uac"=xac))
 }
 
@@ -2637,28 +2713,31 @@ computebound <- function( M, i, l )
 comparerankings <- function( ranking1, ranking2 )
 {
   badpairs = 0
-  N = nrow(ranking1)
+  N = max(ranking1[,1],ranking2[,2])
   
   for( i in c(1:(N-1)) )
   {
-  	r11 = ranking1[which(ranking1[,1]==i),2]
-  	r21 = ranking2[which(ranking2[,1]==i),2]
+  	r11 = rownames(ranking1)[which(ranking1[,1]==i)]
   	for( j in c((i+1):N) )
   	{
-  	  r12 = ranking1[which(ranking1[,1]==j),2]
-  	  r22 = ranking2[which(ranking2[,1]==j),2]
-  	  
-  	  if( 
-  	  	( ( r11 >= r12 ) && ( r21 <= r22 ) )
-  	  	||
-  	  	( ( r11 <= r12 ) && ( r21 >= r22 ) )
-  	  	)
-  	  {
-  	  	badpairs = badpairs + 1
-  	  }
+  		r21 = rownames(ranking1)[which(ranking1[,1]==j)]
+  			
+  		for( a11 in r11 ){
+  	  		for( a21 in r21 ){
+  	  			
+  	  			ra12 = ranking2[which(rownames(ranking2)==a11),1]
+  	  			ra22 = ranking2[which(rownames(ranking2)==a21),1]
+  	  			
+  	  			if( ra12 >= ra22 ){
+  	  				#print("=====")
+  	  				#print(a11)
+  	  				#print(a21)
+  	  				badpairs = badpairs + 1
+  	  			}
+  	  		}
+  	  	}
   	}
   }
-  
   return(badpairs)
 }
 
@@ -2732,7 +2811,7 @@ nextpair_relationoriented <- function( L, M )
 		rownames(perfs)=NULL
 	}
 	
-	print("/")
+	#print("/")
 	
 	goodpairs = which( perfs[,2]==max(perfs[,2]))
 	Lbis = L[goodpairs,]
