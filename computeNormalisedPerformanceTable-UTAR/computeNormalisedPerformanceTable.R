@@ -1,3 +1,5 @@
+#R --slave --vanilla --args "in" "out" < computeNormalisedPerformanceTable.R
+
 inputsLocation <- commandArgs()[5]
 outputsLocation <- commandArgs()[6]
 
@@ -101,12 +103,12 @@ if( errTag==FALSE )
 				}
 				
 				data_xml <- xmlInternalTreeParse( location )
-				crit <- getCriteriaIDs(data_xml)[[1]]
+				criteriaFromValueFunctions <- getCriteriaIDs(data_xml)[[1]]
 				matrices <- getValueFunctions(data_xml)
 				gmatrix <- matrices$gmatrix
 				umatrix <- matrices$umatrix
-				rownames(gmatrix) <- crit 
-				rownames(umatrix) <- crit 
+				rownames(gmatrix) <- criteriaFromValueFunctions 
+				rownames(umatrix) <- criteriaFromValueFunctions 
 			})
 	if ( inherits(tmpErr, 'try-error') ){
 		if(errTag == FALSE){exportLog( "Failed to get data from valueFunctions.xml" , outputsLocation )}
@@ -127,16 +129,19 @@ if( errTag==FALSE )
 					temporaryAlternatives <- c( temporaryAlternatives , temp )
 				}
 				temporaryCriteria <- c()
+				critorder <- c()
 				for (l in 1:length(criteriaIDs) )
 				{
 					temp <- which( co == criteriaIDs[l] ) 
 					temporaryCriteria <- c( temporaryCriteria , temp )
+					tempvf <- which( criteriaFromValueFunctions == criteriaIDs[l] ) 
+					critorder <- c( critorder, tempvf )
 				}
-				print(temporaryAlternatives)
-				print(temporaryCriteria)
-				print(matrices)
+				print(gmatrix[critorder,])
+				print(umatrix[critorder,])
 				PT <- performanceTable[ temporaryAlternatives , temporaryCriteria ]
-				NPT <- computeNormalisedPerformanceTable( PT , gmatrix , umatrix )
+				print(PT)
+				NPT <- computeNormalizedPerformanceTable( PT , gmatrix[critorder,] , umatrix[critorder,] )
 			})
 	if ( inherits(tmpErr, 'try-error') ){
 		if(errTag == FALSE){exportLog( "Execution failure while manipulating performance tables and criteria/alternatives" , outputsLocation ) } 
