@@ -141,7 +141,7 @@ if( errTag==FALSE )
 				print(umatrix[critorder,])
 				PT <- performanceTable[ temporaryAlternatives , temporaryCriteria ]
 				print(PT)
-				NPT <- computeNormalizedPerformanceTable( PT , gmatrix[critorder,] , umatrix[critorder,] )
+				NPT <- computeNormalisedPerformanceTable( PT , gmatrix[critorder,] , umatrix[critorder,] )
 			})
 	if ( inherits(tmpErr, 'try-error') ){
 		if(errTag == FALSE){exportLog( "Execution failure while manipulating performance tables and criteria/alternatives" , outputsLocation ) } 
